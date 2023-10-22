@@ -1,0 +1,5 @@
+Flask
+spacy
+pdfminer.six
+# scrapy
+pyresparser
