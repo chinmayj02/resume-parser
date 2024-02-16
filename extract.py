@@ -27,7 +27,6 @@ def extract_name(resume_text):
         [{'POS': 'PROPN'}, {'POS': 'PROPN'}],  # First name and Last name
         [{'POS': 'PROPN'}, {'POS': 'PROPN'}, {'POS': 'PROPN'}],  # First name, Middle name, and Last name
         [{'POS': 'PROPN'}, {'POS': 'PROPN'}, {'POS': 'PROPN'}, {'POS': 'PROPN'}]  # First name, Middle name, Middle name, and Last name
-        # Add more patterns as needed
     ]
 
     for pattern in patterns:
