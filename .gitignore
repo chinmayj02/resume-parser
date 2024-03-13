@@ -1,3 +1,6 @@
 .venv
 .vscode
-data
+nltk-downloader.py
+__pycache__
+.Ds_store
+

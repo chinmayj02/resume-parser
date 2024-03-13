@@ -1,57 +1,68 @@
-from flask import Flask, render_template, jsonify,session, request, url_for, flash, redirect
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from tika import parser as tika_parser
 import os
-from extract import * 
-from pyresparser import ResumeParser
-import nltk
-from nltk.corpus import words
-from nltk.metrics.distance import edit_distance
-nltk.download('words')
-
-def filter_skills(skill_list):
-    valid_words = set(words.words())
-    filtered_skills = []
-
-    for skill in skill_list:
-        # Remove non-alphabetic characters and convert to lowercase for better matching
-        cleaned_skill = ''.join(e for e in skill if e.isalnum()).lower()
-
-        if any(edit_distance(cleaned_skill, word) <= 1 for word in valid_words):
-            filtered_skills.append(skill)
-
-    return filtered_skills
+import spacy
+import tempfile
+from spacy.matcher import Matcher
+import re
 
 app = Flask(__name__)
-app.secret_key=os.urandom(24)
+app.secret_key = os.urandom(24)
+CORS(app)
 
-education_keywords = ['Bsc', 'B. Pharmacy', 'B Pharmacy', 'Msc', 'M. Pharmacy', 'Ph.D', 'Bachelor','hssc', 'Master','b.e']
+def extract_information(text):
+    nlp = spacy.load('en_core_web_sm')
+    doc = nlp(text)
 
+    name = None
+    email = None
+    phone_number = None
 
-@app.route("/")
-def index_page():
-    return render_template('home.html', current_page='home')
-@app.route("/upload/true",methods=['post'])
-def resume_accept_page():
-    request.files['resume'].save(os.path.join("uploads","resume.pdf"))
-    resume_text=extract_text_from_pdf("uploads/resume.pdf")
-    resume_data = ResumeParser('uploads/resume.pdf').get_extracted_data()
+    # Define regex pattern for email
+    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
-    # resume_vectorized = vectorizer.transform([resume_text])
-    # skills_predicted = model.predict(resume_vectorized)
-    # skills = [word for i, word in enumerate(resume_text.split()) if skills_predicted[0][i] == 1]
+    # Find email addresses using regex
+    emails = re.findall(email_regex, text)
+    if emails:
+        email = emails[0]
 
-    name=extract_name(resume_text)
-    contact=extract_contact_number_from_resume(resume_text)
-    email=extract_email_from_resume(resume_text)
-    # skills=resume_data['skills']
-    skills=filter_skills(resume_data['skills'])
-    education=extract_education_from_resume(resume_text, education_keywords)
-    # education=resume_data['degree']
-    print("\n##########################\n")
-    print(resume_data)
-    print("\n##########################\n")
-    return render_template('output.html', current_page='output', name=name, contact=contact, email=email, skills=skills,education=education)
+    phone_pattern = [{"ORTH": {"REGEX": "(\\d[- .\\(]?){9,}(\\d{1})"}}, {"ORTH": {"IN": [")", "-"]}, "OP": "?"}]
+    matcher = Matcher(nlp.vocab)
+    matcher.add("PHONE_NUMBER", [phone_pattern])
+
+    for match_id, start, end in matcher(doc):
+        phone_number = doc[start:end].text
+        break
+
+    for ent in doc.ents:
+        if ent.label_ == "PERSON" and not name:
+            name = ent.text
+        elif ent.label_ == "PHONE_NUMBER" and not phone_number:
+            phone_number = ent.text
+
+    return {
+        "Full Name": name,
+        "Email": email,
+        "Mobile Number": phone_number,
+    }
+
+@app.route('/parse_resume', methods=['POST'])
+def resu_parser():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file and file.filename.endswith('.pdf'):
+        temp_dir = tempfile.mkdtemp()
+        file_path = os.path.join(temp_dir, file.filename)
+        file.save(file_path)
+        parsed = tika_parser.from_file(file_path)
+        text = parsed['content']
+        return jsonify(extract_information(text))
+    else:
+        return jsonify({'error': 'Unsupported file format'}), 400
 
 if __name__ == '__main__':
-    # app.run(host='192.168.0.107', port=5000, debug=True)
-    app.run(host='localhost',debug=True)
-    # app.run(host='192.168.1.2', port=5000, debug=False)
+    app.run(host='localhost', debug=True)

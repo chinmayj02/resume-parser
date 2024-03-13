@@ -1,5 +1,8 @@
 Flask
 spacy
-pdfminer.six
-# scrapy
-pyresparser
+nltk
+flask-cors
+tika 
+tempfile
+python-dateutil
+
