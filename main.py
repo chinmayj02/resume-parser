@@ -6,6 +6,8 @@ import spacy
 import tempfile
 from spacy.matcher import Matcher
 import re
+import requests
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -18,6 +20,7 @@ def extract_information(text):
     name = None
     email = None
     phone_number = None
+    extracted_skills = []
 
     # Define regex pattern for email
     email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -41,10 +44,36 @@ def extract_information(text):
         elif ent.label_ == "PHONE_NUMBER" and not phone_number:
             phone_number = ent.text
 
+    # skills
+    api_url = "http://localhost:8080/jobportal/api/skills"
+    try:
+        # Send GET request to the API
+        response = requests.get(api_url)
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse JSON response
+            data = response.json()
+            # Ensure data is a list
+            if isinstance(data, list):
+                # Iterate over the list and extract skills
+                for item in data:
+                    # Extract skill name from each item
+                    skill_name = item.get("skillName")
+                    # Check if skill name exists and search for it in the text
+                    if skill_name and skill_name.lower() in text.lower():
+                        extracted_skills.append(skill_name)
+            else:
+                print("Unexpected response format: expected list, got", type(data))
+        else:
+            print("Failed to fetch data from the API. Status code:", response.status_code)
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while fetching data:", e)
+
     return {
         "Full Name": name,
         "Email": email,
         "Mobile Number": phone_number,
+        "Skills":extracted_skills
     }
 
 @app.route('/parse_resume', methods=['POST'])
