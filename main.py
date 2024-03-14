@@ -7,6 +7,7 @@ import tempfile
 from spacy.matcher import Matcher
 import re
 import requests
+import shutil
 
 
 app = Flask(__name__)
@@ -87,9 +88,13 @@ def resu_parser():
         temp_dir = tempfile.mkdtemp()
         file_path = os.path.join(temp_dir, file.filename)
         file.save(file_path)
+        print(file_path)
         parsed = tika_parser.from_file(file_path)
         text = parsed['content']
-        return jsonify(extract_information(text))
+        result = extract_information(text)
+        # Cleanup temporary files
+        shutil.rmtree(temp_dir)  # This will remove the entire temporary directory and its contents
+        return jsonify(result)
     else:
         return jsonify({'error': 'Unsupported file format'}), 400
 

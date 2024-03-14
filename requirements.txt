@@ -3,6 +3,5 @@ spacy
 nltk
 flask-cors
 tika 
-tempfile
 python-dateutil
 
