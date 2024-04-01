@@ -4,4 +4,6 @@ nltk
 flask-cors
 tika 
 python-dateutil
-
+transformers
+torch
+scikit-learn
