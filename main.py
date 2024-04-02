@@ -18,5 +18,8 @@ def parse_resume():
 def recommend_jobs(candidateId):
     return(job_recommendation(candidateId))
 
+@app.route('/recommend-candidates/<int:jobId>', methods=['POST'])
+def recommend_candidates(jobId):
+    return(candidate_recommendation(jobId))
 if __name__ == '__main__':
     app.run(host='localhost', debug=True)
