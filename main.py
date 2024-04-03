@@ -14,9 +14,10 @@ def parse_resume():
         return jsonify({'error': 'No file part'}), 400
     return(resume_parser(request.files['file']))
 
-@app.route('/recommend-jobs/<int:candidateId>', methods=['POST'])
-def recommend_jobs(candidateId):
-    return(job_recommendation(candidateId))
+@app.route('/recommend-jobs', methods=['POST'])
+def recommend_jobs():
+    sessionId = request.args.get('sessionId')
+    return job_recommendation(sessionId)
 
 @app.route('/recommend-candidates/<int:jobId>', methods=['POST'])
 def recommend_candidates(jobId):
