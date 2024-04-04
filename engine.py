@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import json
 import requests
 from flask import jsonify
-from datetime import datetime
+from datetime import datetime,timezone
 import time
 
 # Cached job and candidate lists
@@ -65,21 +65,34 @@ def get_candidate_data(sessionId):
 # Helper function to calculate years of experience
 def calculate_experience_years(start_date, end_date):
     # Parse the start date string into a datetime object
-    start_date = datetime.strptime(str(start_date), "%Y%m%d")
+    start_date_datetime = datetime.fromtimestamp(start_date / 1000, timezone.utc)
+    start_date_year = start_date_datetime.year
+    print(start_date_datetime)
 
     # Parse the end date string into a datetime object
-    end_date = datetime.strptime(str(end_date), "%Y%m%d")
-    return (end_date - start_date).days // 365 if end_date > start_date else 0
+    end_date_datetime = datetime.fromtimestamp(end_date / 1000, timezone.utc)
+    end_date_year = end_date_datetime.year
+    print(end_date_year)
+
+    experience = end_date_year - start_date_year
+    return experience
 
 # Helper function to calculate age from date of birth
 def calculate_age(dob):
-    # Implementation of calculate_age depends on your specific date format and timezone considerations
-    # For example, if dob is in milliseconds since epoch, you can calculate age like this:
-    # from datetime import datetime
-    # current_year = datetime.now().year
-    # dob_year = datetime.utcfromtimestamp(dob / 1000).year
-    # return current_year - dob_year
-    pass  # Implement according to your requirements
+    # Convert the dob to a datetime object
+    dob_datetime = datetime.fromtimestamp(dob / 1000, timezone.utc)
+
+    # Get the current year
+    current_year = datetime.now(timezone.utc).year
+
+    # Get the year from the dob
+    dob_year = dob_datetime.year
+
+    # Calculate the age
+    age = current_year - dob_year
+
+    return age
+
 
 # get single job data
 def get_job_data(job_id):
