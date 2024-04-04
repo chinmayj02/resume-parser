@@ -253,25 +253,53 @@ def get_bert_embeddings(text):
     embeddings = outputs.last_hidden_state.mean(dim=1)
     return embeddings.numpy()
 
+# def job_recommendation(sessionId):
+#     candidate_info = get_candidate_data(sessionId)
+#     print(candidate_info)
+#     if not candidate_info:
+#         return jsonify({'error': 'Unsupported format'}), 400
+#     candidate_info_text = ' '.join(map(str, candidate_info))
+#     candidate_embedding = get_bert_embeddings(candidate_info_text)
+#
+#     job_embeddings = []
+#     jobs_data=get_jobs_list()
+#     for job_info in zip(jobs_data['required_education'], jobs_data['required_job_preferences'], jobs_data['required_languages']):
+#         job_info_text = ' '.join(map(str, job_info))
+#         job_embeddings.append(get_bert_embeddings(job_info_text))
+#     job_embeddings = np.array(job_embeddings)
+#
+#     similarity_scores = cosine_similarity(candidate_embedding.reshape(1, -1), job_embeddings.reshape(len(job_embeddings), -1))
+#     ranked_jobs_indices = np.argsort(similarity_scores[0])[::-1]  # Descending order
+#     ranked_jobs = [(jobs_data['job_id'][idx], similarity_scores[0][idx]) for idx in ranked_jobs_indices]
+#     return log_and_return(ranked_jobs, candidate_info["candidateId"], "Candidate","Job")
+
+# Updated job_recommendation code
 def job_recommendation(sessionId):
     candidate_info = get_candidate_data(sessionId)
-    print(candidate_info)
     if not candidate_info:
         return jsonify({'error': 'Unsupported format'}), 400
+
     candidate_info_text = ' '.join(map(str, candidate_info))
     candidate_embedding = get_bert_embeddings(candidate_info_text)
 
     job_embeddings = []
-    jobs_data=get_jobs_list()
-    for job_info in zip(jobs_data['required_education'], jobs_data['required_job_preferences'], jobs_data['required_languages']):
+    jobs_data = get_jobs_list()
+    for job_info in zip(jobs_data['required_education'], jobs_data['required_job_preferences'],
+                        jobs_data['required_languages'],
+                        jobs_data['required_skills'], jobs_data['required_gender'], jobs_data['required_age_min'],
+                        jobs_data['required_age_max'], jobs_data['required_job_role'],
+                        jobs_data['required_experience_min'],
+                        jobs_data['required_experience_max']):
         job_info_text = ' '.join(map(str, job_info))
         job_embeddings.append(get_bert_embeddings(job_info_text))
     job_embeddings = np.array(job_embeddings)
 
-    similarity_scores = cosine_similarity(candidate_embedding.reshape(1, -1), job_embeddings.reshape(len(job_embeddings), -1))
+    similarity_scores = cosine_similarity(candidate_embedding.reshape(1, -1),
+                                          job_embeddings.reshape(len(job_embeddings), -1))
     ranked_jobs_indices = np.argsort(similarity_scores[0])[::-1]  # Descending order
     ranked_jobs = [(jobs_data['job_id'][idx], similarity_scores[0][idx]) for idx in ranked_jobs_indices]
-    return log_and_return(ranked_jobs, candidate_info["candidateId"], "Candidate","Job")
+    return log_and_return(ranked_jobs, candidate_info["candidateId"], "Candidate", "Job")
+
 
 def candidate_recommendation(job_id):
     job_info = get_job_data(job_id)
@@ -303,4 +331,3 @@ def log_and_return(matches, entity_id, entity_type, matched_entity_type):
     for item_id, similarity_score in matches:
         result[matched_entity_type].append({matched_entity_type + " ID": item_id, "Similarity Score": float(similarity_score)})
     return json.dumps(result, indent=4)
-
