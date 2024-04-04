@@ -6,6 +6,7 @@ import requests
 import shutil
 from tika import parser as tika_parser
 from flask import jsonify
+import os
 
 
 def extract_information(text):
