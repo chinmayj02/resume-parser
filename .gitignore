@@ -3,4 +3,5 @@
 nltk-downloader.py
 __pycache__
 .Ds_Store
+.idea
 

@@ -64,6 +64,7 @@ def get_candidate_data(sessionId):
 
 # Helper function to calculate years of experience
 def calculate_experience_years(start_date, end_date):
+
     # Parse the start date timestamp into a datetime object with UTC timezone
     start_date_datetime = datetime.utcfromtimestamp(start_date / 1000).replace(tzinfo=timezone.utc)
     # Parse the end date timestamp into a datetime object with UTC timezone
@@ -75,6 +76,7 @@ def calculate_experience_years(start_date, end_date):
     if end_date_datetime.month < start_date_datetime.month or (end_date_datetime.month == start_date_datetime.month and end_date_datetime.day < start_date_datetime.day):
         experience -= 1
     return experience
+
 
 
 # Helper function to calculate age from date of birth
