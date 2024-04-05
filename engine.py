@@ -67,15 +67,21 @@ def calculate_experience_years(start_date, end_date):
     # Parse the start date string into a datetime object
     start_date_datetime = datetime.fromtimestamp(start_date / 1000, timezone.utc)
     start_date_year = start_date_datetime.year
-    print(start_date_datetime)
+    start_date_month = start_date_datetime.month
 
     # Parse the end date string into a datetime object
     end_date_datetime = datetime.fromtimestamp(end_date / 1000, timezone.utc)
     end_date_year = end_date_datetime.year
-    print(end_date_year)
+    end_date_month = end_date_datetime.month
 
-    experience = end_date_year - start_date_year
-    return experience
+    print(start_date_datetime)
+    print(end_date_datetime)
+
+    experience_years = end_date_year - start_date_year
+    if end_date_month < start_date_month:
+        experience_years -= 1  # Adjust for partial years
+
+    return experience_years
 
 # Helper function to calculate age from date of birth
 def calculate_age(dob):
