@@ -64,41 +64,32 @@ def get_candidate_data(sessionId):
 
 # Helper function to calculate years of experience
 def calculate_experience_years(start_date, end_date):
-    # Parse the start date string into a datetime object
-    start_date_datetime = datetime.fromtimestamp(start_date / 1000, timezone.utc)
-    start_date_year = start_date_datetime.year
-    start_date_month = start_date_datetime.month
 
-    # Parse the end date string into a datetime object
-    end_date_datetime = datetime.fromtimestamp(end_date / 1000, timezone.utc)
-    end_date_year = end_date_datetime.year
-    end_date_month = end_date_datetime.month
+    # Parse the start date timestamp into a datetime object with UTC timezone
+    start_date_datetime = datetime.utcfromtimestamp(start_date / 1000).replace(tzinfo=timezone.utc)
+    # Parse the end date timestamp into a datetime object with UTC timezone
+    end_date_datetime = datetime.utcfromtimestamp(end_date / 1000).replace(tzinfo=timezone.utc)
+    # Calculate the difference in years between end date and start date
+    experience = end_date_datetime.year - start_date_datetime.year
 
-    print(start_date_datetime)
-    print(end_date_datetime)
+    # Adjust for cases where the end date is before the start date in the same year
+    if end_date_datetime.month < start_date_datetime.month or (end_date_datetime.month == start_date_datetime.month and end_date_datetime.day < start_date_datetime.day):
+        experience -= 1
+    return experience
 
-    experience_years = end_date_year - start_date_year
-    if end_date_month < start_date_month:
-        experience_years -= 1  # Adjust for partial years
 
-    return experience_years
 
 # Helper function to calculate age from date of birth
 def calculate_age(dob):
     # Convert the dob to a datetime object
     dob_datetime = datetime.fromtimestamp(dob / 1000, timezone.utc)
-
     # Get the current year
     current_year = datetime.now(timezone.utc).year
-
     # Get the year from the dob
     dob_year = dob_datetime.year
-
     # Calculate the age
     age = current_year - dob_year
-
     return age
-
 
 # get single job data
 def get_job_data(job_id):
@@ -261,23 +252,30 @@ def get_bert_embeddings(text):
 
 def job_recommendation(sessionId):
     candidate_info = get_candidate_data(sessionId)
-    print(candidate_info)
     if not candidate_info:
         return jsonify({'error': 'Unsupported format'}), 400
+
     candidate_info_text = ' '.join(map(str, candidate_info))
     candidate_embedding = get_bert_embeddings(candidate_info_text)
 
     job_embeddings = []
-    jobs_data=get_jobs_list()
-    for job_info in zip(jobs_data['required_education'], jobs_data['required_job_preferences'], jobs_data['required_languages']):
+    jobs_data = get_jobs_list()
+    for job_info in zip(jobs_data['required_education'], jobs_data['required_job_preferences'],
+                        jobs_data['required_languages'],
+                        jobs_data['required_skills'], jobs_data['required_gender'], jobs_data['required_age_min'],
+                        jobs_data['required_age_max'], jobs_data['required_job_role'],
+                        jobs_data['required_experience_min'],
+                        jobs_data['required_experience_max']):
         job_info_text = ' '.join(map(str, job_info))
         job_embeddings.append(get_bert_embeddings(job_info_text))
     job_embeddings = np.array(job_embeddings)
 
-    similarity_scores = cosine_similarity(candidate_embedding.reshape(1, -1), job_embeddings.reshape(len(job_embeddings), -1))
+    similarity_scores = cosine_similarity(candidate_embedding.reshape(1, -1),
+                                          job_embeddings.reshape(len(job_embeddings), -1))
     ranked_jobs_indices = np.argsort(similarity_scores[0])[::-1]  # Descending order
     ranked_jobs = [(jobs_data['job_id'][idx], similarity_scores[0][idx]) for idx in ranked_jobs_indices]
-    return log_and_return(ranked_jobs, candidate_info["candidateId"], "Candidate","Job")
+    return log_and_return(ranked_jobs, candidate_info["candidateId"], "Candidate", "Job")
+
 
 def candidate_recommendation(job_id):
     job_info = get_job_data(job_id)
@@ -288,8 +286,9 @@ def candidate_recommendation(job_id):
 
     candidate_embeddings = []
     candidates_data = get_candidate_list_cached()
+
     for candidate_info in zip(candidates_data['gender'], candidates_data['age'], candidates_data['education'], 
-                              candidates_data['job_preferences'], candidates_data['languages']):
+                              candidates_data['job_preferences'], candidates_data['languages'],candidates_data['skills'], candidates_data['previous_job_roles']):
         candidate_info_text = ' '.join(map(str, candidate_info))
         candidate_embeddings.append(get_bert_embeddings(candidate_info_text))
     candidate_embeddings = np.array(candidate_embeddings)
@@ -309,4 +308,3 @@ def log_and_return(matches, entity_id, entity_type, matched_entity_type):
     for item_id, similarity_score in matches:
         result[matched_entity_type].append({matched_entity_type + " ID": item_id, "Similarity Score": float(similarity_score)})
     return json.dumps(result, indent=4)
-
