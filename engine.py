@@ -9,31 +9,31 @@ from datetime import datetime,timezone
 import time
 
 # Cached job and candidate lists
-cached_jobs = None
-cached_candidates = None
-last_job_fetch_time = 0
-last_candidate_fetch_time = 0
-cache_expiry_time = 3600  # Cache expiry time in seconds (1 hour)
+# cached_jobs = None
+# cached_candidates = None
+# last_job_fetch_time = 0
+# last_candidate_fetch_time = 0
+# cache_expiry_time = 3600  # Cache expiry time in seconds (1 hour)
 
-def get_jobs_list_cached():
-    global cached_jobs, last_job_fetch_time
+# def get_jobs_list_cached():
+#     global cached_jobs, last_job_fetch_time
 
-    # Check if cache needs to be refreshed
-    if not cached_jobs or time.time() - last_job_fetch_time > cache_expiry_time:
-        cached_jobs = get_jobs_list()
-        last_job_fetch_time = time.time()
+#     # Check if cache needs to be refreshed
+#     if not cached_jobs or time.time() - last_job_fetch_time > cache_expiry_time:
+#         cached_jobs = get_jobs_list("Male or Female")
+#         last_job_fetch_time = time.time()
 
-    return cached_jobs
+#     return cached_jobs
 
-def get_candidate_list_cached():
-    global cached_candidates, last_candidate_fetch_time
+# def get_candidate_list():
+#     global cached_candidates, last_candidate_fetch_time
 
-    # Check if cache needs to be refreshed
-    if not cached_candidates or time.time() - last_candidate_fetch_time > cache_expiry_time:
-        cached_candidates = get_candidate_list()
-        last_candidate_fetch_time = time.time()
+#     # Check if cache needs to be refreshed
+#     if not cached_candidates or time.time() - last_candidate_fetch_time > cache_expiry_time:
+#         cached_candidates = get_candidate_list()
+#         last_candidate_fetch_time = time.time()
 
-    return cached_candidates
+#     return cached_candidates
 
 # get single candidate data
 def get_candidate_data(sessionId):
@@ -55,6 +55,11 @@ def get_candidate_data(sessionId):
                 'skills': {skill['skillName']: (skill['proficiency'] or 1) for skill in candidate_info[1]['skills']},
                 'previous_job_roles': {experience['jobRole']: calculate_experience_years(experience['startDate'], experience['endDate']) for experience in candidate_info[1]['candidateExperiences']}
             }
+            if(transformed_data['gender']=="M"):
+                transformed_data["gender"]="Male"
+            elif(transformed_data["gender"]=="F"):
+                transformed_data["gender"]="Female"
+            print(transformed_data)
             return transformed_data
         else:
             print("Failed to fetch data from the API. Status code:", response.status_code)
@@ -64,18 +69,24 @@ def get_candidate_data(sessionId):
 
 # Helper function to calculate years of experience
 def calculate_experience_years(start_date, end_date):
+    # Parse the start date string into a datetime object
+    start_date_datetime = datetime.fromtimestamp(start_date / 1000, timezone.utc)
+    start_date_year = start_date_datetime.year
+    start_date_month = start_date_datetime.month
 
-    # Parse the start date timestamp into a datetime object with UTC timezone
-    start_date_datetime = datetime.utcfromtimestamp(start_date / 1000).replace(tzinfo=timezone.utc)
-    # Parse the end date timestamp into a datetime object with UTC timezone
-    end_date_datetime = datetime.utcfromtimestamp(end_date / 1000).replace(tzinfo=timezone.utc)
-    # Calculate the difference in years between end date and start date
-    experience = end_date_datetime.year - start_date_datetime.year
+    # Parse the end date string into a datetime object
+    end_date_datetime = datetime.fromtimestamp(end_date / 1000, timezone.utc)
+    end_date_year = end_date_datetime.year
+    end_date_month = end_date_datetime.month
 
-    # Adjust for cases where the end date is before the start date in the same year
-    if end_date_datetime.month < start_date_datetime.month or (end_date_datetime.month == start_date_datetime.month and end_date_datetime.day < start_date_datetime.day):
-        experience -= 1
-    return experience
+    print(start_date_datetime)
+    print(end_date_datetime)
+
+    experience_years = end_date_year - start_date_year
+    if end_date_month < start_date_month:
+        experience_years -= 1  # Adjust for partial years
+
+    return experience_years
 
 
 
@@ -124,7 +135,9 @@ def get_job_data(job_id):
     return job_data
 
 # get job list
-def get_jobs_list():
+import requests
+
+def get_jobs_list(gender,age):
     api_url = "http://localhost:8080/jobportal/job-list?categoryId=&isActive=1&isRecent=1&pageSize=-1"
     try:
         # Send GET request to the API
@@ -143,7 +156,7 @@ def get_jobs_list():
         'required_education': [],
         'required_job_preferences': [],
         'required_languages': [],
-        'required_skills': {},
+        'required_skills': [],
         'required_gender': [],
         'required_age_min': [],
         'required_age_max': [],
@@ -151,28 +164,39 @@ def get_jobs_list():
         'required_experience_min': [],
         'required_experience_max': []
     }
-
     for job in jobs_data:
-        transformed_data['job_id'].append(job['jobId'])
-        transformed_data['required_education'].append(', '.join([degree['degreeName'] for degree in job['degrees']]))
-        transformed_data['required_job_preferences'].append(', '.join([preference['preference'] for preference in job['preferences']]))
-        transformed_data['required_languages'].append(', '.join([language['language'] for language in job['languages']]))
+        if(job['requiredGender']=="M"):
+            job["requiredGender"]="Male"
+        elif(job["requiredGender"]=="F"):
+            job["requiredGender"]="Female"
+        else:
+            job["requiredGender"]="Male or Female"
+        if gender == "Male or Female" or job['requiredGender'] == gender or job['requiredGender']=="Male or Female":
+            if age>=job["requiredAgeMin"]:
+                transformed_data['job_id'].append(job['jobId'])
+                transformed_data['required_education'].append(job['requiredHighestEducation'])
+                transformed_data['required_job_preferences'].append(', '.join([preference['preference'] for preference in job['preferences']]))
+                transformed_data['required_languages'].append(', '.join([language['language'] for language in job['languages']]))
 
-        # Extract skills and their proficiencies
-        for skill in job['skills']:
-            skill_name = skill['skillName']
-            proficiency = skill.get('proficiency', 1)  # Default proficiency to 0 if missing
-            transformed_data['required_skills'][skill_name] = proficiency
+                job_skills = []
+                for skill in job['skills']:
+                    skill_name = skill['skillName']
+                    proficiency = int(skill.get('proficiency', 1))  # Default proficiency to 1 if missing
+                    job_skills.append({'skillName': skill_name, 'proficiency': proficiency})
+                
+                transformed_data['required_skills'].append(job_skills)
+                transformed_data['required_gender'].append(job['requiredGender'])
+                transformed_data['required_age_min'].append(job['requiredAgeMin'])
+                transformed_data['required_age_max'].append(job['requiredAgeMax'])
+                transformed_data['required_job_role'].append(job['jobRole'])
+                transformed_data['required_experience_min'].append(job['requiredExperienceMin'])
+                transformed_data['required_experience_max'].append(job['requiredExperienceMax'])
+    # print(transformed_data)
+    if not transformed_data['job_id']:
+        return None
+    else:
+        return transformed_data
 
-        transformed_data['required_gender'].append(job['requiredGender'])
-        transformed_data['required_age_min'].append(job['requiredAgeMin'])
-        transformed_data['required_age_max'].append(job['requiredAgeMax'])
-        transformed_data['required_job_role'].append(job['jobRole'])
-        transformed_data['required_experience_min'].append(job['requiredExperienceMin'])
-        transformed_data['required_experience_max'].append(job['requiredExperienceMax'])
-        print(transformed_data)
-
-    return transformed_data
 
 # get candidate list
 def get_candidate_list():
@@ -256,19 +280,23 @@ def job_recommendation(sessionId):
     candidate_info = get_candidate_data(sessionId)
     if not candidate_info:
         return jsonify({'error': 'Unsupported format'}), 400
-
-    candidate_info_text = ' '.join(map(str, candidate_info))
-    candidate_embedding = get_bert_embeddings(candidate_info_text)
-
     job_embeddings = []
-    jobs_data = get_jobs_list()
+    jobs_data = get_jobs_list(candidate_info["gender"],candidate_info["age"])
+    if(jobs_data==None):
+        return jsonify({'error': 'No Jobs'}), 204
+    # candidate_info_text = ' '.join(map(str, candidate_info))
+    candidate_info_text = " ".join([str(val) for val in candidate_info.values()])
+    candidate_embedding = get_bert_embeddings(candidate_info_text)
+    print(candidate_embedding)
+    
     for job_info in zip(jobs_data['required_education'], jobs_data['required_job_preferences'],
                         jobs_data['required_languages'],
                         jobs_data['required_skills'], jobs_data['required_gender'], jobs_data['required_age_min'],
                         jobs_data['required_age_max'], jobs_data['required_job_role'],
                         jobs_data['required_experience_min'],
                         jobs_data['required_experience_max']):
-        job_info_text = ' '.join(map(str, job_info))
+        # job_info_text = ' '.join(map(str, job_info))
+        job_info_text = " ".join([str(val) for val in job_info])
         job_embeddings.append(get_bert_embeddings(job_info_text))
     job_embeddings = np.array(job_embeddings)
 
@@ -287,14 +315,21 @@ def candidate_recommendation(job_id):
     job_embedding = get_bert_embeddings(job_info_text)
 
     candidate_embeddings = []
-    candidates_data = get_candidate_list_cached()
+    candidates_data = get_candidate_list()
 
-    for candidate_info in zip(candidates_data['gender'], candidates_data['age'], candidates_data['education'], 
-                              candidates_data['job_preferences'], candidates_data['languages'],candidates_data['skills'], candidates_data['previous_job_roles']):
+    for candidate_info in zip(candidates_data['gender'], 
+                              candidates_data['age'], 
+                              candidates_data['education'], 
+                              candidates_data['job_preferences'], 
+                              candidates_data['languages'],
+                              candidates_data['skills'],
+                              candidates_data['previous_job_roles']):
         candidate_info_text = ' '.join(map(str, candidate_info))
         candidate_embeddings.append(get_bert_embeddings(candidate_info_text))
     candidate_embeddings = np.array(candidate_embeddings)
+    print(candidate_embeddings)
 
+# this line of code computes the cosine similarity between a single job embedding and multiple candidate embeddings, resulting in a similarity score for each candidate.
     similarity_scores = cosine_similarity(job_embedding.reshape(1, -1), candidate_embeddings.reshape(len(candidate_embeddings), -1))
     ranked_candidates_indices = np.argsort(similarity_scores[0])[::-1]  # Descending order
     ranked_candidates = [(candidates_data['candidate_id'][idx], similarity_scores[0][idx]) for idx in ranked_candidates_indices]
