@@ -170,6 +170,7 @@ def get_jobs_list():
         transformed_data['required_job_role'].append(job['jobRole'])
         transformed_data['required_experience_min'].append(job['requiredExperienceMin'])
         transformed_data['required_experience_max'].append(job['requiredExperienceMax'])
+        print(transformed_data)
 
     return transformed_data
 
@@ -236,6 +237,7 @@ def get_candidate_list():
                 candidates_data['skills'][skill] = max(candidates_data['skills'][skill], proficiency)
             else:
                 candidates_data['skills'][skill] = proficiency
+        print(candidates_data)
     return candidates_data
 
 # Load pre-trained BERT model and tokenizer
