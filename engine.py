@@ -130,6 +130,7 @@ def get_job_data(job_id):
         'required_experience_max': job_details['requiredExperienceMax'],
         'required_gender':job_details['requiredGender']
     }
+    print(job_data)
     if job_details.get('requiredGender') is None:
         job_data['required_gender'] = ["M", "F"]
     return job_data
