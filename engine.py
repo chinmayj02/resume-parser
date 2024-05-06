@@ -59,7 +59,6 @@ def get_candidate_data(sessionId):
                 transformed_data["gender"]="Male"
             elif(transformed_data["gender"]=="F"):
                 transformed_data["gender"]="Female"
-            print(transformed_data)
             return transformed_data
         else:
             print("Failed to fetch data from the API. Status code:", response.status_code)
@@ -79,16 +78,11 @@ def calculate_experience_years(start_date, end_date):
     end_date_year = end_date_datetime.year
     end_date_month = end_date_datetime.month
 
-    print(start_date_datetime)
-    print(end_date_datetime)
-
     experience_years = end_date_year - start_date_year
     if end_date_month < start_date_month:
         experience_years -= 1  # Adjust for partial years
 
     return experience_years
-
-
 
 # Helper function to calculate age from date of birth
 def calculate_age(dob):
@@ -130,14 +124,16 @@ def get_job_data(job_id):
         'required_experience_max': job_details['requiredExperienceMax'],
         'required_gender':job_details['requiredGender']
     }
-    print(job_data)
-    if job_details.get('requiredGender') is None:
-        job_data['required_gender'] = ["M", "F"]
+    if(job_details.get('requiredGender')=="M"):
+        job_data["required_gender"]="Male"
+    elif(job_details.get('requiredGender')=="F"):
+        job_data["required_gender"]="Female"
+    if job_details.get('requiredGender') is None or job_details.get('requiredGender')=="A":
+        job_data['required_gender'] = "Male or Female"
+    # print(job_data)
     return job_data
 
 # get job list
-import requests
-
 def get_jobs_list(gender,age):
     api_url = "http://localhost:8080/jobportal/job-list?categoryId=&isActive=1&isRecent=1&pageSize=-1"
     try:
@@ -198,9 +194,8 @@ def get_jobs_list(gender,age):
     else:
         return transformed_data
 
-
 # get candidate list
-def get_candidate_list():
+def get_candidate_list(requiredGender, requiredAge):
     api_url = "http://localhost:8080/jobportal/api/candidates"
     try:
         # Send GET request to the API
@@ -221,32 +216,55 @@ def get_candidate_list():
         'education': [],
         'job_preferences': [],
         'languages': [],
-        'skills': {},
+        'skills': [],  # Modified to include skills and proficiencies
         'previous_job_roles': {}
     }
 
     for candidate_info, candidate_details in candidate_list:
         # Extracting candidate information
         candidate_id = candidate_info['userId']
-        gender = candidate_info['gender']
+        gender = ""
+        if candidate_info['gender'] == "M":
+            gender = "Male"
+        elif candidate_info['gender'] == "F":
+            gender = "Female"
         dob = datetime.fromtimestamp(candidate_info['dob'] / 1000)
         age = datetime.now().year - dob.year
-        
+
+        # Skip candidates below the required age
+        if age < requiredAge:
+            continue
+
+        # Skip candidates not matching the required gender
+        if requiredGender == "Male" and gender != "Male":
+            continue
+        elif requiredGender == "Female" and gender != "Female":
+            continue
+
         # Extracting education information
-        education_info = candidate_details['candidateEducations'][0]
-        degree_name = education_info['degreeName']
-        institute_name = education_info['instituteName']
-        education = f"{degree_name} from {institute_name}"
+        education_info = candidate_details.get('candidateEducations', [])
+        if education_info:
+            education_info = education_info[0]  # Assuming only one education record for simplicity
+            degree_name = education_info['degreeName']
+            institute_name = education_info['instituteName']
+            education = f"{degree_name} from {institute_name}"
+        else:
+            education = "No education information available"
 
         # Extracting job preferences and languages
-        job_preferences = candidate_details['jobPreferences']
-        languages = ', '.join(candidate_details['languages'])
+        job_preferences = candidate_details.get('jobPreferences', [])
+        languages = ', '.join(candidate_details.get('languages', []))
 
-        # Extracting skills
-        skills = {}
-        for skill in candidate_details['skills']:
-            if skill['proficiency']:
-                skills[skill['skillName']] = int(skill['proficiency'])
+        # Extracting skills and proficiencies
+        skills = []
+        for skill in candidate_details.get('skills', []):
+            skill_name = skill['skillName']
+            proficiency = skill.get('proficiency')  # Getting proficiency without default value
+            if proficiency is not None:  # Checking if proficiency is not None
+                proficiency = int(proficiency)  # Converting proficiency to integer
+            else:
+                proficiency = 1  # Assigning default proficiency if None
+            skills.append({'skillName': skill_name, 'proficiency': proficiency})
 
         # Updating candidates_data
         candidates_data['candidate_id'].append(candidate_id)
@@ -255,14 +273,9 @@ def get_candidate_list():
         candidates_data['education'].append(education)
         candidates_data['job_preferences'].append(job_preferences)
         candidates_data['languages'].append(languages)
-
-        # Updating skills
-        for skill, proficiency in skills.items():
-            if skill in candidates_data['skills']:
-                candidates_data['skills'][skill] = max(candidates_data['skills'][skill], proficiency)
-            else:
-                candidates_data['skills'][skill] = proficiency
-        print(candidates_data)
+        candidates_data['skills'].append(skills)
+    
+    # print(candidates_data)
     return candidates_data
 
 # Load pre-trained BERT model and tokenizer
@@ -288,7 +301,6 @@ def job_recommendation(sessionId):
     # candidate_info_text = ' '.join(map(str, candidate_info))
     candidate_info_text = " ".join([str(val) for val in candidate_info.values()])
     candidate_embedding = get_bert_embeddings(candidate_info_text)
-    print(candidate_embedding)
     
     for job_info in zip(jobs_data['required_education'], jobs_data['required_job_preferences'],
                         jobs_data['required_languages'],
@@ -312,11 +324,15 @@ def candidate_recommendation(job_id):
     job_info = get_job_data(job_id)
     if not job_info:
         return jsonify({'error': 'Unsupported format'}), 400
-    job_info_text = ' '.join(map(str, job_info))
-    job_embedding = get_bert_embeddings(job_info_text)
-
     candidate_embeddings = []
-    candidates_data = get_candidate_list()
+    candidates_data = get_candidate_list(job_info["required_gender"],job_info["required_age_min"])
+    print(candidates_data)
+
+    if(candidates_data==None):
+        return jsonify({'error': 'No Candidates'}), 204
+    # job_info_text = ' '.join(map(str, job_info))
+    job_info_text = " ".join([str(val) for val in job_info.values()])
+    job_embedding = get_bert_embeddings(job_info_text)
 
     for candidate_info in zip(candidates_data['gender'], 
                               candidates_data['age'], 
@@ -328,7 +344,6 @@ def candidate_recommendation(job_id):
         candidate_info_text = ' '.join(map(str, candidate_info))
         candidate_embeddings.append(get_bert_embeddings(candidate_info_text))
     candidate_embeddings = np.array(candidate_embeddings)
-    print(candidate_embeddings)
 
 # this line of code computes the cosine similarity between a single job embedding and multiple candidate embeddings, resulting in a similarity score for each candidate.
     similarity_scores = cosine_similarity(job_embedding.reshape(1, -1), candidate_embeddings.reshape(len(candidate_embeddings), -1))
