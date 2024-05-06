@@ -178,7 +178,11 @@ def get_jobs_list(gender,age):
                 job_skills = []
                 for skill in job['skills']:
                     skill_name = skill['skillName']
-                    proficiency = int(skill.get('proficiency', 1))  # Default proficiency to 1 if missing
+                    proficiency = skill.get('proficiency')  # Getting proficiency without default value
+                    if proficiency is not None:  # Checking if proficiency is not None
+                        proficiency = int(proficiency)  # Converting proficiency to integer
+                    else:
+                        proficiency = 1  # Assigning default proficiency if None
                     job_skills.append({'skillName': skill_name, 'proficiency': proficiency})
                 
                 transformed_data['required_skills'].append(job_skills)
