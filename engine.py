@@ -330,7 +330,7 @@ def candidate_recommendation(job_id):
         return jsonify({'error': 'Unsupported format'}), 400
     candidate_embeddings = []
     candidates_data = get_candidate_list(job_info["required_gender"],job_info["required_age_min"])
-    print(candidates_data)
+    # print(candidates_data)
 
     if(candidates_data==None):
         return jsonify({'error': 'No Candidates'}), 204
@@ -339,14 +339,23 @@ def candidate_recommendation(job_id):
     job_embedding = get_bert_embeddings(job_info_text)
 
     for candidate_info in zip(candidates_data['gender'], 
-                              candidates_data['age'], 
-                              candidates_data['education'], 
-                              candidates_data['job_preferences'], 
-                              candidates_data['languages'],
-                              candidates_data['skills'],
-                              candidates_data['previous_job_roles']):
-        candidate_info_text = ' '.join(map(str, candidate_info))
+                          candidates_data['age'], 
+                          candidates_data['education'], 
+                          candidates_data['job_preferences'], 
+                          candidates_data['languages'],
+                          candidates_data['skills']):
+        # Construct candidate information text for embedding
+        candidate_info_text = f"{candidate_info[0]} {candidate_info[1]} {candidate_info[2]} {candidate_info[3]} {candidate_info[4]}"
+
+        # Check if job role information exists
+        if len(candidate_info) > 5:  # Checking if job role information exists
+            job_role = candidate_info[5]  # Extracting job role if available
+            if job_role:
+                candidate_info_text += f" {job_role}"  # Append job role if available
+
+        # Get candidate embeddings and append to the list
         candidate_embeddings.append(get_bert_embeddings(candidate_info_text))
+
     candidate_embeddings = np.array(candidate_embeddings)
 
 # this line of code computes the cosine similarity between a single job embedding and multiple candidate embeddings, resulting in a similarity score for each candidate.
