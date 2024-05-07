@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
-from engine import job_recommendation,candidate_recommendation
+from comparitive import job_recommendation
 from resumeParser import resume_parser
 
 app = Flask(__name__)
