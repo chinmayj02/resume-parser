@@ -16,6 +16,9 @@ from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertModel.from_pretrained('bert-base-uncased')
+
 
 # get single candidate data
 def get_candidate_data(sessionId):
@@ -245,11 +248,7 @@ def preprocess_text(text):
     return text
 
 
-# Generate BERT Embeddings
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-model = BertModel.from_pretrained('bert-base-uncased')
-
-
+# Function to generate BERT Embeddings
 def generate_bert_embeddings(text, tokenizer):
     inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True)
     with torch.no_grad():
@@ -304,36 +303,24 @@ def cosine_similarity_score(candidate_vector, job_vectors):
     return cosine_similarity(candidate_vector.reshape(1, -1), job_vectors.reshape(len(job_vectors), -1))
 
 
-# Define functions to calculate Jaccard Similarity
-def jaccard_similarity_score(candidate_vector, job_vectors):
-    intersection = np.sum(np.minimum(candidate_vector.reshape(1, -1), job_vectors.reshape(len(job_vectors), -1)),
-                          axis=1)
-    union = np.sum(np.maximum(candidate_vector.reshape(1, -1), job_vectors.reshape(len(job_vectors), -1)), axis=1)
-    return intersection / union
-
-
-# Define functions to calculate Euclidean Distance
-def euclidean_distance_score(candidate_vector, job_vectors):
-    return np.linalg.norm(candidate_vector.reshape(1, -1) - job_vectors.reshape(len(job_vectors), -1), axis=1)
-
-
-# Define functions to calculate Manhattan Distance
-def manhattan_distance_score(candidate_vector, job_vectors):
-    return np.sum(np.abs(candidate_vector.reshape(1, -1) - job_vectors.reshape(len(job_vectors), -1)), axis=1)
-
-
 # Method returns list of recommended jobs along with the similarities scores
+import json
+
 def job_recommendation(sessionId):
     # Step 1: Extract & preprocess user data
     candidate_info = get_candidate_data(sessionId)
     if candidate_info is None:
         return []  # Return an empty list if user data is not available
 
-    print("User Data: ")
+    print("Candidate Data:")
     print(candidate_info)
 
+    # Check if candidate has no skills
+    if not candidate_info['skills']:
+        return -1  # No jobs to be recommended
+
     preprocessed_candidate_info = preprocess_user_data(candidate_info)
-    print("Preprocessed user Data: ")
+    print("Preprocessed user Data:")
     print(preprocessed_candidate_info)
 
     # Step 2: Extract & preprocess jobs data
@@ -341,13 +328,14 @@ def job_recommendation(sessionId):
     if jobs_data is None:
         return jsonify({'error': 'No Jobs'}), 204
 
-    print("Jobs data :")
+    print("Jobs data:")
     print(jobs_data)
 
     preprocessed_jobs_data = preprocess_job_data(jobs_data)
-    print("Pre Processed Jobs data :")
+    print("Pre Processed Jobs data:")
     print(preprocessed_jobs_data)
 
+    # Step 3: Generate Candidate Embeddings
     candidate_info_order = ['skills', 'previous_job_roles', 'education', 'job_preferences', 'languages', 'gender',
                             'age']
     candidate_info_values = [candidate_info[key] for key in candidate_info_order]
@@ -369,12 +357,6 @@ def job_recommendation(sessionId):
     print(job_embeddings)
 
     # Calculate similarity metric
-    # Calculate cosine similarity score
-    cosine_similarities = cosine_similarity_score(candidate_embedding, job_embeddings)
-    print("Cosine Similarity: ")
-    print(cosine_similarities)
-    print(len(cosine_similarities))
-
     recommended_jobs = []
     for i in range(len(preprocessed_jobs_data)):
         job_info = preprocessed_jobs_data[i]
@@ -387,19 +369,21 @@ def job_recommendation(sessionId):
         skill_similarity = match_count / max(len(job_skills), 1)
 
         # Calculate preference similarity
-        job_preference_texts = [job_info['preferences']]
+        candidate_preference_embedding = generate_bert_embeddings(candidate_info['job_preferences'], tokenizer)
         job_preference_embedding = generate_bert_embeddings(job_info['preferences'], tokenizer)
-        preference_similarity = cosine_similarity_score(candidate_embedding, job_preference_embedding)
+        preference_similarity = cosine_similarity_score(candidate_preference_embedding, job_preference_embedding)
 
         # Calculate education similarity
         education_text = job_info['requiredHighestEducation']
         education_embedding = generate_bert_embeddings(education_text, tokenizer)
-        education_similarity = cosine_similarity_score(candidate_embedding, education_embedding)
+        candidate_education_embedding = generate_bert_embeddings(candidate_info['education'], tokenizer)
+        education_similarity = cosine_similarity_score(candidate_education_embedding, education_embedding)
 
         # Calculate languages similarity
-        language_texts = [', '.join(job_info.get('languages', []))]
+        language_texts = [''.join(job_info.get('languages', []))]
         language_embedding = generate_bert_embeddings(language_texts[0], tokenizer)
-        language_similarity = cosine_similarity_score(candidate_embedding, language_embedding)
+        candidate_language_embedding = generate_bert_embeddings(candidate_info['languages'], tokenizer)
+        language_similarity = cosine_similarity_score(candidate_language_embedding, language_embedding)
 
         # Calculate experience similarity
         experience_similarity = calculate_experience_match(candidate_info['previous_job_roles'],job_info['requiredExperienceMin'],job_info['requiredExperienceMax'])
@@ -417,167 +401,33 @@ def job_recommendation(sessionId):
             "experienceMatch": experience_similarity,
             "overallSimilarity": overall_similarity
         })
+
+    print("Recommended Jobs:")
     print(recommended_jobs)
-    recommended_jobs = sorted(recommended_jobs, key=lambda x: x['overallSimilarity'], reverse=True)
-    # Sort recommended jobs by recommended score
 
-    # # Calculate Jaccard similarity scores
-    # jaccard_similarities = jaccard_similarity_score(candidate_embedding, job_embeddings)
-    # print("Jaccard Similarity: ")
-    # print(jaccard_similarities)
-    # print(len(jaccard_similarities))
-    #
-    # # Calculate Euclidean distance scores
-    # euclidean_distances = euclidean_distance_score(candidate_embedding, job_embeddings)
-    # print("Euclidean Distance: ")
-    # print(euclidean_distances)
-    # print(len(euclidean_distances))
-    #
-    # # Calculate Manhattan distance scores
-    # manhattan_distances = manhattan_distance_score(candidate_embedding, job_embeddings)
-    # print("Manhattan Distance: ")
-    # print(manhattan_distances)
-    # print(len(manhattan_distances))
-
-    # Prepare recommended jobs list with similarity scores
-    # recommended_jobs = []
-    # for i in range(len(preprocessed_jobs_data)):
-    #     job_info = preprocessed_jobs_data[i]
-    #     job_similarity = {
-    #         "jobId": job_info['jobId'],
-    #         "cosineSimilarity": float(cosine_similarities[0][i]),
-    #         # "jaccardSimilarity": float(jaccard_similarities[i]),
-    #         # "euclideanSimilarity": float(euclidean_distances[i]),
-    #         # "overallSimilarity": float(
-    #         #     (float(cosine_similarities[0][i]) + float(jaccard_similarities[i]) + float(euclidean_distances[i])) / 3)
-    #     }
-    #     recommended_jobs.append(job_similarity)
-    # # Sort recommended jobs by overall similarity score
-    # recommended_jobs = sorted(recommended_jobs, key=lambda x: x['cosineSimilarity'], reverse=True)
-    # print(recommended_jobs)
-    # # Code for generating and visualizing graphs
-    # top_n = 5  # Number of top jobs to display
-    # output_dir = "graphs"
-    # if not os.path.exists(output_dir):
-    #     os.makedirs(output_dir)
-    #
-    # for i in range(top_n):
-    #     job = recommended_jobs[i]
-    #     job_id = job['jobId']
-    #     cosine_similarity = job['cosineSimilarity']
-    #     jaccard_similarity = job['jaccardSimilarity']
-    #     euclidean_similarity = job['euclideanSimilarity']
-    #     overall_similarity = job['overallSimilarity']
-    #
-    #     plt.figure(figsize=(12, 6))
-    #
-    #     # Bar Chart for Similarity Scores for top 5 jobs individually
-    #     x = np.arange(4)
-    #     score_labels = ['Cosine', 'Jaccard', 'Euclidean', 'Overall']
-    #     scores = [cosine_similarity, jaccard_similarity, euclidean_similarity, overall_similarity]
-    #     colors = ['skyblue', 'lightcoral', 'lightgreen', 'orange']
-    #     for j in range(len(scores)):
-    #         plt.bar(x[j], scores[j], color=colors[j], label=score_labels[j])
-    #         plt.axhline(y=scores[j], color=colors[j], linestyle='--', linewidth=0.8)  # Dotted line for precise value
-    #
-    #     plt.xlabel('Similarity Metrics')
-    #     plt.ylabel('Similarity Score')
-    #     plt.title('Job ID: {}'.format(job_id))
-    #     plt.xticks(x, score_labels)
-    #     plt.ylim(-1, 1)  # Setting y-axis limit to -1 to 1 for consistency
-    #     plt.legend()
-    #     plt.tight_layout()
-    #     # Save the graph
-    #     plt.savefig(os.path.join(output_dir, 'job_{}_similarity_graph.png'.format(job_id)))
-    #
-    #     plt.show()
-    #
-    #     # Code for generating and visualizing the bar plot
-    #     top_n = 5  # Number of top jobs to display
-    #     top_jobs = recommended_jobs[:top_n]  # Assuming recommended_jobs is sorted by cosine similarity
-    #     job_ids = [job['jobId'] for job in top_jobs]
-    #     cosine_similarities = [job['cosineSimilarity'] for job in top_jobs]
-    #
-    #     # Sort job IDs and cosine similarities in descending order of cosine similarities
-    #     job_ids_sorted = [job_id for _, job_id in sorted(zip(cosine_similarities, job_ids), reverse=True)]
-    #     cosine_similarities_sorted = sorted(cosine_similarities, reverse=True)
-    #
-    #     # Define colors for different jobs
-    #     colors = ['lightcoral', 'lightskyblue', 'lightgreen', 'lightyellow', 'lightpink']
-    #
-    #     plt.figure(figsize=(12, 6))
-    #
-    #     # Bar Plot for Cosine Similarity Scores
-    #     x = np.arange(len(job_ids_sorted))
-    #     for i in range(len(job_ids_sorted)):
-    #         plt.bar(x[i], cosine_similarities_sorted[i], color=colors[i], label='Job {}'.format(job_ids_sorted[i]))
-    #         plt.text(x[i], cosine_similarities_sorted[i], '{}'.format(cosine_similarities_sorted[i]), ha='center', va='bottom')
-    #
-    #     plt.xlabel('Job IDs')
-    #     plt.ylabel('Cosine Similarity')
-    #     plt.title('Top 5 Jobs based on Cosine Similarity')
-    #     plt.xticks(x, job_ids_sorted)
-    #     plt.ylim(0, 1)  # Setting y-axis limit to 0-1 for cosine similarity
-    #     plt.legend()
-    #     plt.tight_layout()
-    #
-    #     # Save the bar plot
-    #     output_dir = "graphs"
-    #     if not os.path.exists(output_dir):
-    #         os.makedirs(output_dir)
-    #     plt.savefig(os.path.join(output_dir, 'top_5_jobs_cosine_similarity.png'))
-    #
-    #     plt.show()
-    #
-    # # 2. Histogram of Similarity Scores
-    # plt.figure(figsize=(12, 8))
-    # plt.hist([job['overallSimilarity'] for job in recommended_jobs], bins=10, color='lightcoral', edgecolor='black')
-    # plt.xlabel('Similarity Score')
-    # plt.ylabel('Frequency')
-    # plt.title('Distribution of Similarity Scores')
-    # plt.tight_layout()
-    # plt.savefig(os.path.join('graphs', 'histogram_similarity_scores.png'))
-    # plt.show()
-    #
-    # # 3. Box Plot of Similarity Scores
-    # plt.figure(figsize=(12, 8))
-    # plt.boxplot([job['overallSimilarity'] for job in recommended_jobs], vert=False)
-    # plt.xlabel('Similarity Score')
-    # plt.title('Box Plot of Similarity Scores')
-    # plt.tight_layout()
-    # plt.savefig(os.path.join('graphs', 'boxplot_similarity_scores.png'))
-    # plt.show()
-    #
-    # # 4. Scatter Plot of Similarity Scores vs. Job Attributes
-    # plt.figure(figsize=(12, 8))
-    # plt.scatter([job['requiredExperienceMin'] for job in jobs_data],
-    #             [job['cosineSimilarity'] for job in recommended_jobs])
-    # plt.xlabel('Required Experience (min)')
-    # plt.ylabel('Similarity Score')
-    # plt.title('Similarity Score vs. Required Experience')
-    # plt.tight_layout()
-    # plt.savefig(os.path.join('graphs', 'scatter_similarity_vs_experience.png'))
-    # plt.show()
-    #
-    # # 6. Heatmap of Similarity Scores
-    # similarity_matrix = np.array([[job['overallSimilarity'] for job in recommended_jobs]])
-    # plt.figure(figsize=(12, 8))
-    # plt.imshow(similarity_matrix, cmap='hot', interpolation='nearest')
-    # plt.colorbar()
-    # plt.title('Heatmap of Similarity Scores')
-    # plt.tight_layout()
-    # plt.savefig(os.path.join('graphs', 'heatmap_similarity_scores.png'))
-    # plt.show()
-    # Format the recommended jobs according to the desired response format
-    formatted_jobs = []
+    # Filter recommended jobs based on test cases
+    filtered_jobs = []
     for job in recommended_jobs:
+        if job['overallSimilarity'] >= 0.5:  # Only consider jobs with overall similarity score >= 50%
+            filtered_jobs.append(job)
+
+    if not filtered_jobs:
+        return []  # No jobs to recommend
+
+    filtered_jobs = normalize_scores(filtered_jobs)
+    # Sort recommended jobs by overall similarity score in descending order
+    sorted_jobs = sorted(filtered_jobs, key=lambda x: x['recommendedScore'], reverse=True)
+
+    formatted_jobs = []
+    for job in sorted_jobs:
         formatted_job = {
             "jobId": job['jobId'],
-            "recommededScore": int(job['overallSimilarity'] * 100)  # Converting similarity score to percentage
+            "overallSimilarity": int(job['recommendedScore'] * 100)  # Converting similarity score to percentage
         }
         formatted_jobs.append(formatted_job)
+    sorted_jobs = sorted(formatted_jobs, key=lambda x: x['overallSimilarity'], reverse=True)
 
-    return json.dumps(formatted_jobs)
+    return json.dumps(sorted_jobs)
 
 # Method to normalise scores
 def normalize_scores(recommended_jobs):
@@ -598,14 +448,15 @@ def normalize_scores(recommended_jobs):
     # Calculate recommended score as weighted average of similarities
     for job in recommended_jobs:
         job['recommendedScore'] = (
-                0.3 * job['skillSimilarity'] +
-                0.2 * job['preferenceSimilarity'] +
-                0.2 * job['educationSimilarity'] +
-                0.2 * job['languageSimilarity'] +
-                0.1 * job['experienceMatch']
+            0.3 * job['skillSimilarity'] +
+            0.2 * job['preferenceSimilarity'] +
+            0.2 * job['educationSimilarity'] +
+            0.2 * job['languageSimilarity'] +
+            0.1 * job['experienceMatch']
         )
 
     return recommended_jobs
+
 
 def calculate_experience_match(candidate_previous_job_roles, required_experience_min, required_experience_max):
     """
@@ -669,3 +520,309 @@ def candidate_recommendation(job_id):
                          ranked_candidates_indices]
 
     return log_and_return(ranked_candidates, job_id, "Job", "Candidate")
+
+
+#----------------------------------------------------------------------
+# Define functions to calculate Jaccard Similarity
+# def jaccard_similarity_score(candidate_vector, job_vectors):
+#     intersection = np.sum(np.minimum(candidate_vector.reshape(1, -1), job_vectors.reshape(len(job_vectors), -1)),
+#                           axis=1)
+#     union = np.sum(np.maximum(candidate_vector.reshape(1, -1), job_vectors.reshape(len(job_vectors), -1)), axis=1)
+#     return intersection / union
+#
+#
+# # Define functions to calculate Euclidean Distance
+# def euclidean_distance_score(candidate_vector, job_vectors):
+#     return np.linalg.norm(candidate_vector.reshape(1, -1) - job_vectors.reshape(len(job_vectors), -1), axis=1)
+#
+#
+# # Define functions to calculate Manhattan Distance
+# def manhattan_distance_score(candidate_vector, job_vectors):
+#     return np.sum(np.abs(candidate_vector.reshape(1, -1) - job_vectors.reshape(len(job_vectors), -1)), axis=1)
+# def job_recommendation(sessionId):
+#     # Step 1: Extract & preprocess user data
+#     candidate_info = get_candidate_data(sessionId)
+#     if candidate_info is None:
+#         return []  # Return an empty list if user data is not available
+#
+#     print("Candidate Data: ")
+#     print(candidate_info)
+#
+#     if(candidate_info['skills']) is None:
+#         return -1
+#
+#     preprocessed_candidate_info = preprocess_user_data(candidate_info)
+#     print("Preprocessed user Data: ")
+#     print(preprocessed_candidate_info)
+#
+#     # Step 2: Extract & preprocess jobs data
+#     jobs_data = get_jobs_list(candidate_info["gender"], candidate_info["age"])
+#     if jobs_data is None:
+#         return jsonify({'error': 'No Jobs'}), 204
+#
+#     print("Jobs data :")
+#     print(jobs_data)
+#
+#     preprocessed_jobs_data = preprocess_job_data(jobs_data)
+#     print("Pre Processed Jobs data :")
+#     print(preprocessed_jobs_data)
+#
+#     candidate_info_order = ['skills', 'previous_job_roles', 'education', 'job_preferences', 'languages', 'gender',
+#                             'age']
+#     candidate_info_values = [candidate_info[key] for key in candidate_info_order]
+#     candidate_info_text = "".join([str(val) for val in candidate_info_values])
+#     candidate_embedding = generate_bert_embeddings(candidate_info_text, tokenizer)
+#
+#     # Step 4: Generate BERT embeddings for jobs
+#     job_embeddings = []
+#     for job_info in jobs_data:
+#         job_info_values = [job_info.get('skills', []), job_info.get('preferences', []),
+#                            job_info.get('requiredHighestEducation', ''), job_info.get('requiredGender', ''),
+#                            job_info.get('languages', []), job_info.get('requiredAgeMin', 0),
+#                            job_info.get('requiredAgeMax', 100), job_info.get('requiredJobRole', ''),
+#                            job_info.get('requiredExperienceMin', 0), job_info.get('requiredExperienceMax', 100)]
+#         job_info_text = "".join([str(val) for val in job_info_values])
+#         job_embeddings.append(generate_bert_embeddings(job_info_text, tokenizer))
+#     job_embeddings = np.array(job_embeddings)
+#     print("Jobs embeddings Data:")
+#     print(job_embeddings)
+#
+#     # Calculate similarity metric
+#     # Calculate cosine similarity score
+#     cosine_similarities = cosine_similarity_score(candidate_embedding, job_embeddings)
+#     print("Cosine Similarity: ")
+#     print(cosine_similarities)
+#     print(len(cosine_similarities))
+#
+#     recommended_jobs = []
+#     for i in range(len(preprocessed_jobs_data)):
+#         job_info = preprocessed_jobs_data[i]
+#
+#         # Calculate skill similarity
+#         job_skills = [skill['skillName'] for skill in job_info.get('skills', [])]
+#         job_proficiencies = {skill['skillName']: int(skill['proficiency']) for skill in job_info.get('skills', [])}
+#         match_count = sum(
+#             int(candidate_info['skills'].get(skill, '0')) >= job_proficiencies.get(skill, 0) for skill in job_skills)
+#         skill_similarity = match_count / max(len(job_skills), 1)
+#
+#         # Calculate preference similarity
+#         job_preference_texts = [job_info['preferences']]
+#         job_preference_embedding = generate_bert_embeddings(job_info['preferences'], tokenizer)
+#         preference_similarity = cosine_similarity_score(candidate_embedding, job_preference_embedding)
+#
+#         # Calculate education similarity
+#         education_text = job_info['requiredHighestEducation']
+#         education_embedding = generate_bert_embeddings(education_text, tokenizer)
+#         education_similarity = cosine_similarity_score(candidate_embedding, education_embedding)
+#
+#         # Calculate languages similarity
+#         language_texts = [', '.join(job_info.get('languages', []))]
+#         language_embedding = generate_bert_embeddings(language_texts[0], tokenizer)
+#         language_similarity = cosine_similarity_score(candidate_embedding, language_embedding)
+#
+#         # Calculate experience similarity
+#         experience_similarity = calculate_experience_match(candidate_info['previous_job_roles'],job_info['requiredExperienceMin'],job_info['requiredExperienceMax'])
+#
+#         # Calculate overall similarity score (you can adjust weights if needed)
+#         overall_similarity = (skill_similarity + preference_similarity + education_similarity + language_similarity + experience_similarity) / 5
+#
+#         # Append job data along with similarity scores to the recommended jobs list
+#         recommended_jobs.append({
+#             "jobId": job_info['jobId'],
+#             "skillSimilarity": skill_similarity,
+#             "preferenceSimilarity": preference_similarity,
+#             "educationSimilarity": education_similarity,
+#             "languageSimilarity": language_similarity,
+#             "experienceMatch": experience_similarity,
+#             "overallSimilarity": overall_similarity
+#         })
+#     print(recommended_jobs)
+#     normalised_jobs = normalize_scores(recommended_jobs)
+#     recommended_jobs = sorted(normalised_jobs, key=lambda x: x['recommendedScore'], reverse=True)
+#     # Sort recommended jobs by recommended score
+#
+#     # # Calculate Jaccard similarity scores
+#     # jaccard_similarities = jaccard_similarity_score(candidate_embedding, job_embeddings)
+#     # print("Jaccard Similarity: ")
+#     # print(jaccard_similarities)
+#     # print(len(jaccard_similarities))
+#     #
+#     # # Calculate Euclidean distance scores
+#     # euclidean_distances = euclidean_distance_score(candidate_embedding, job_embeddings)
+#     # print("Euclidean Distance: ")
+#     # print(euclidean_distances)
+#     # print(len(euclidean_distances))
+#     #
+#     # # Calculate Manhattan distance scores
+#     # manhattan_distances = manhattan_distance_score(candidate_embedding, job_embeddings)
+#     # print("Manhattan Distance: ")
+#     # print(manhattan_distances)
+#     # print(len(manhattan_distances))
+#
+#     # Prepare recommended jobs list with similarity scores
+#     # recommended_jobs = []
+#     # for i in range(len(preprocessed_jobs_data)):
+#     #     job_info = preprocessed_jobs_data[i]
+#     #     job_similarity = {
+#     #         "jobId": job_info['jobId'],
+#     #         "cosineSimilarity": float(cosine_similarities[0][i]),
+#     #         # "jaccardSimilarity": float(jaccard_similarities[i]),
+#     #         # "euclideanSimilarity": float(euclidean_distances[i]),
+#     #         # "overallSimilarity": float(
+#     #         #     (float(cosine_similarities[0][i]) + float(jaccard_similarities[i]) + float(euclidean_distances[i])) / 3)
+#     #     }
+#     #     recommended_jobs.append(job_similarity)
+#     # # Sort recommended jobs by overall similarity score
+#     # recommended_jobs = sorted(recommended_jobs, key=lambda x: x['cosineSimilarity'], reverse=True)
+#     # print(recommended_jobs)
+#     # # Code for generating and visualizing graphs
+#     # top_n = 5  # Number of top jobs to display
+#     # output_dir = "graphs"
+#     # if not os.path.exists(output_dir):
+#     #     os.makedirs(output_dir)
+#     #
+#     # for i in range(top_n):
+#     #     job = recommended_jobs[i]
+#     #     job_id = job['jobId']
+#     #     cosine_similarity = job['cosineSimilarity']
+#     #     jaccard_similarity = job['jaccardSimilarity']
+#     #     euclidean_similarity = job['euclideanSimilarity']
+#     #     overall_similarity = job['overallSimilarity']
+#     #
+#     #     plt.figure(figsize=(12, 6))
+#     #
+#     #     # Bar Chart for Similarity Scores for top 5 jobs individually
+#     #     x = np.arange(4)
+#     #     score_labels = ['Cosine', 'Jaccard', 'Euclidean', 'Overall']
+#     #     scores = [cosine_similarity, jaccard_similarity, euclidean_similarity, overall_similarity]
+#     #     colors = ['skyblue', 'lightcoral', 'lightgreen', 'orange']
+#     #     for j in range(len(scores)):
+#     #         plt.bar(x[j], scores[j], color=colors[j], label=score_labels[j])
+#     #         plt.axhline(y=scores[j], color=colors[j], linestyle='--', linewidth=0.8)  # Dotted line for precise value
+#     #
+#     #     plt.xlabel('Similarity Metrics')
+#     #     plt.ylabel('Similarity Score')
+#     #     plt.title('Job ID: {}'.format(job_id))
+#     #     plt.xticks(x, score_labels)
+#     #     plt.ylim(-1, 1)  # Setting y-axis limit to -1 to 1 for consistency
+#     #     plt.legend()
+#     #     plt.tight_layout()
+#     #     # Save the graph
+#     #     plt.savefig(os.path.join(output_dir, 'job_{}_similarity_graph.png'.format(job_id)))
+#     #
+#     #     plt.show()
+#     #
+#     #     # Code for generating and visualizing the bar plot
+#     #     top_n = 5  # Number of top jobs to display
+#     #     top_jobs = recommended_jobs[:top_n]  # Assuming recommended_jobs is sorted by cosine similarity
+#     #     job_ids = [job['jobId'] for job in top_jobs]
+#     #     cosine_similarities = [job['cosineSimilarity'] for job in top_jobs]
+#     #
+#     #     # Sort job IDs and cosine similarities in descending order of cosine similarities
+#     #     job_ids_sorted = [job_id for _, job_id in sorted(zip(cosine_similarities, job_ids), reverse=True)]
+#     #     cosine_similarities_sorted = sorted(cosine_similarities, reverse=True)
+#     #
+#     #     # Define colors for different jobs
+#     #     colors = ['lightcoral', 'lightskyblue', 'lightgreen', 'lightyellow', 'lightpink']
+#     #
+#     #     plt.figure(figsize=(12, 6))
+#     #
+#     #     # Bar Plot for Cosine Similarity Scores
+#     #     x = np.arange(len(job_ids_sorted))
+#     #     for i in range(len(job_ids_sorted)):
+#     #         plt.bar(x[i], cosine_similarities_sorted[i], color=colors[i], label='Job {}'.format(job_ids_sorted[i]))
+#     #         plt.text(x[i], cosine_similarities_sorted[i], '{}'.format(cosine_similarities_sorted[i]), ha='center', va='bottom')
+#     #
+#     #     plt.xlabel('Job IDs')
+#     #     plt.ylabel('Cosine Similarity')
+#     #     plt.title('Top 5 Jobs based on Cosine Similarity')
+#     #     plt.xticks(x, job_ids_sorted)
+#     #     plt.ylim(0, 1)  # Setting y-axis limit to 0-1 for cosine similarity
+#     #     plt.legend()
+#     #     plt.tight_layout()
+#     #
+#     #     # Save the bar plot
+#     #     output_dir = "graphs"
+#     #     if not os.path.exists(output_dir):
+#     #         os.makedirs(output_dir)
+#     #     plt.savefig(os.path.join(output_dir, 'top_5_jobs_cosine_similarity.png'))
+#     #
+#     #     plt.show()
+#     #
+#     # # 2. Histogram of Similarity Scores
+#     # plt.figure(figsize=(12, 8))
+#     # plt.hist([job['overallSimilarity'] for job in recommended_jobs], bins=10, color='lightcoral', edgecolor='black')
+#     # plt.xlabel('Similarity Score')
+#     # plt.ylabel('Frequency')
+#     # plt.title('Distribution of Similarity Scores')
+#     # plt.tight_layout()
+#     # plt.savefig(os.path.join('graphs', 'histogram_similarity_scores.png'))
+#     # plt.show()
+#     #
+#     # # 3. Box Plot of Similarity Scores
+#     # plt.figure(figsize=(12, 8))
+#     # plt.boxplot([job['overallSimilarity'] for job in recommended_jobs], vert=False)
+#     # plt.xlabel('Similarity Score')
+#     # plt.title('Box Plot of Similarity Scores')
+#     # plt.tight_layout()
+#     # plt.savefig(os.path.join('graphs', 'boxplot_similarity_scores.png'))
+#     # plt.show()
+#     #
+#     # # 4. Scatter Plot of Similarity Scores vs. Job Attributes
+#     # plt.figure(figsize=(12, 8))
+#     # plt.scatter([job['requiredExperienceMin'] for job in jobs_data],
+#     #             [job['cosineSimilarity'] for job in recommended_jobs])
+#     # plt.xlabel('Required Experience (min)')
+#     # plt.ylabel('Similarity Score')
+#     # plt.title('Similarity Score vs. Required Experience')
+#     # plt.tight_layout()
+#     # plt.savefig(os.path.join('graphs', 'scatter_similarity_vs_experience.png'))
+#     # plt.show()
+#     #
+#     # # 6. Heatmap of Similarity Scores
+#     # similarity_matrix = np.array([[job['overallSimilarity'] for job in recommended_jobs]])
+#     # plt.figure(figsize=(12, 8))
+#     # plt.imshow(similarity_matrix, cmap='hot', interpolation='nearest')
+#     # plt.colorbar()
+#     # plt.title('Heatmap of Similarity Scores')
+#     # plt.tight_layout()
+#     # plt.savefig(os.path.join('graphs', 'heatmap_similarity_scores.png'))
+#     # plt.show()
+#     # Format the recommended jobs according to the desired response format
+#     formatted_jobs = []
+#     for job in recommended_jobs:
+#         formatted_job = {
+#             "jobId": job['jobId'],
+#             "recommededScore": int(job['recommendedScore'] * 100)  # Converting similarity score to percentage
+#         }
+#         formatted_jobs.append(formatted_job)
+#
+#     return json.dumps(formatted_jobs)
+#
+# # Method to normalise scores
+# def normalize_scores(recommended_jobs):
+#     # Normalize similarity scores to [0, 1] range
+#     max_skill_similarity = max(job['skillSimilarity'] for job in recommended_jobs)
+#     max_preference_similarity = max(job['preferenceSimilarity'] for job in recommended_jobs)
+#     max_education_similarity = max(job['educationSimilarity'] for job in recommended_jobs)
+#     max_language_similarity = max(job['languageSimilarity'] for job in recommended_jobs)
+#     max_experience_match = max(job['experienceMatch'] for job in recommended_jobs)
+#
+#     for job in recommended_jobs:
+#         job['skillSimilarity'] /= max_skill_similarity if max_skill_similarity != 0 else 1
+#         job['preferenceSimilarity'] /= max_preference_similarity if max_preference_similarity != 0 else 1
+#         job['educationSimilarity'] /= max_education_similarity if max_education_similarity != 0 else 1
+#         job['languageSimilarity'] /= max_language_similarity if max_language_similarity != 0 else 1
+#         job['experienceMatch'] /= max_experience_match if max_experience_match != 0 else 1
+#
+#     # Calculate recommended score as weighted average of similarities
+#     for job in recommended_jobs:
+#         job['recommendedScore'] = (
+#             0.3 * job['skillSimilarity'] +
+#             0.2 * job['preferenceSimilarity'] +
+#             0.2 * job['educationSimilarity'] +
+#             0.2 * job['languageSimilarity'] +
+#             0.1 * job['experienceMatch']
+#         )
+#
+#     return recommended_jobs
