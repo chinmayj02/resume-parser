@@ -1,0 +1,187 @@
+# # Step 4: Convert candidate, jobs text data to TF-IDF vectors
+    # candidate_tfidf_vector, job_tfidf_vector = convert_to_tfidf(candidate_data, jobs_data)
+    # print("Candidate TFIDF Data:")
+    # print(candidate_tfidf_vector)
+    #
+    # print("Jobs TFIDF Data:")
+    # print(job_tfidf_vector)
+    #
+    #
+    #
+    # # Step 6: Calculate similarity scores
+    # recommended_jobs = []
+    # for i, job_data in enumerate(preprocessed_jobs_data):
+    #     # Calculate TF-IDF similarity using cosine similarity
+    #     tfidf_similarity_cosine = cosine_similarity(user_data_tfidf_vector, jobs_data_tfidf_vectors[i])[0][0]
+    #
+    #     # Calculate TF-IDF similarity using Jaccard Similarity
+    #     tfidf_similarity_jaccard = jaccard_similarity(user_data_tfidf_vector, jobs_data_tfidf_vectors[i])
+    #
+    #     # Calculate BERT embeddings similarity using cosine similarity
+    #     bert_similarity_cosine = cosine_similarity(user_data_bert_embeddings.reshape(1, -1),
+    #                                                job_embeddings[i].reshape(1, -1))[0][0]
+    #
+    #     # Calculate Euclidean Distance between TF-IDF vectors
+    #     tfidf_distance_euclidean = euclidean_distance(user_data_tfidf_vector.toarray(),
+    #                                                   jobs_data_tfidf_vectors[i].toarray())
+    #
+    #     # Calculate Manhattan Distance between TF-IDF vectors
+    #     tfidf_distance_manhattan = manhattan_distance(user_data_tfidf_vector.toarray(),
+    #                                                   jobs_data_tfidf_vectors[i].toarray())
+    #
+    #     # Calculate Euclidean Distance between BERT embeddings
+    #     bert_distance_euclidean = euclidean_distance(user_data_bert_embeddings, job_embeddings[i])
+    #
+    #     # Calculate Manhattan Distance between BERT embeddings
+    #     bert_distance_manhattan = manhattan_distance(user_data_bert_embeddings, job_embeddings[i])
+    #
+    #     # Append job recommendation with similarity scores
+    #     recommended_job = {
+    #         "jobId": job_data["jobId"],
+    #         "CosineSimilarity_TFIDF": tfidf_similarity_cosine,
+    #         "JaccardSimilarity_TFIDF": tfidf_similarity_jaccard,
+    #         "CosineSimilarity_BERT": bert_similarity_cosine,
+    #         "EuclideanDistance_TFIDF": tfidf_distance_euclidean,
+    #         "ManhattanDistance_TFIDF": tfidf_distance_manhattan,
+    #         "EuclideanDistance_BERT": bert_distance_euclidean,
+    #         "ManhattanDistance_BERT": bert_distance_manhattan
+    #     }
+    #     recommended_jobs.append(recommended_job)
+    #
+    # # Sort recommended jobs by overall similarity score in descending order
+    # recommended_jobs = sorted(recommended_jobs, key=lambda x: x["OverallSimilarityScore"], reverse=True)
+    # print("Recommended Jobs")
+    # print(recommended_jobs)
+    # return recommended_jobs
+
+
+
+# UNWANTED CODE :-
+# Function to preprocess user_data
+# def preprocess_user_data(user_data):
+#     # Preprocess education and job preferences
+#     user_data['education'] = preprocess_text(user_data['education'])
+#     user_data['job_preferences'] = preprocess_text(user_data['job_preferences'])
+#
+#     # Preprocess languages
+#     user_data['languages'] = [preprocess_text(language) for language in user_data['languages'].split(',')]
+#
+#     # Convert skills proficiency to integer
+#     user_data['skills'] = {skill: int(proficiency) for skill, proficiency in user_data['skills'].items()}
+#
+#     # Convert previous job roles experience to integer
+#     user_data['previous_job_roles'] = {role: int(experience) for role, experience in user_data['previous_job_roles'].items()}
+#
+#     return user_data
+
+
+# Function to preprocess user data
+# def preprocess_user_data(user_data):
+#     # Preprocess education and job preferences
+#     user_data['education'] = preprocess_text(user_data['education'])
+#     user_data['job_preferences'] = preprocess_text(user_data['job_preferences'])
+#
+#     # Preprocess languages
+#     user_data['languages'] = preprocess_text(','.join(user_data['languages']))
+#
+#     # Convert skills proficiency to integer
+#     user_data['skills'] = {skill: int(proficiency) for skill, proficiency in user_data['skills'].items()}
+#
+#     # Convert previous job roles experience to integer
+#     user_data['previous_job_roles'] = {role: int(experience) for role, experience in user_data['previous_job_roles'].items()}
+#
+#     return user_data
+#
+#
+# # Function to preprocess jobs data
+# def preprocess_job_data(job_data):
+#     for job in job_data:
+#         # Preprocess skills proficiency to integer
+#         for skill in job['skills']:
+#             skill['proficiency'] = int(skill['proficiency'])
+#
+#         # Preprocess age and experience to integer, handle empty cases
+#         job['requiredExperienceMin'] = int(job['requiredExperienceMin']) if job['requiredExperienceMin'] else None
+#         job['requiredExperienceMax'] = int(job['requiredExperienceMax']) if job['requiredExperienceMax'] else None
+#         job['requiredAgeMin'] = int(job['requiredAgeMin']) if job['requiredAgeMin'] else None
+#         job['requiredAgeMax'] = int(job['requiredAgeMax']) if job['requiredAgeMax'] else None
+#
+#         # Preprocess locations, languages, and preferences, handle empty cases
+#         job['locations'] = preprocess_text(','.join(job['locations']))
+#         job['languages'] = preprocess_text(','.join(job['languages']))
+#         job['preferences'] = preprocess_text(','.join(job['preferences']))
+#
+#         # Preprocess highest education and gender, handle empty cases
+#         job['requiredHighestEducation'] = preprocess_text(job['requiredHighestEducation']) if job['requiredHighestEducation'] else None
+#         job['requiredGender'] = preprocess_text(job['requiredGender']) if job['requiredGender'] else None
+#
+#     return job_data
+#
+# Function to Convert text data to TF-IDF vectors
+# def convert_to_tfidf(user_data):
+#     # Concatenate text features (education, job preferences, languages) into a single string
+#     text_features = ' '.join([user_data['education'], user_data['job_preferences'], *user_data['languages']])
+#
+#     # Initialize TF-IDF vectorizer
+#     vectorizer = TfidfVectorizer()
+#
+#     # Fit and transform the text features to TF-IDF vectors
+#     tfidf_vectors = vectorizer.fit_transform([text_features])
+#
+#     return tfidf_vectors
+# def convert_jobs_to_tfidf(jobs_data):
+#     text_features = ""
+#
+#     # Concatenate job preferences into text_features
+#     if 'preferences' in jobs_data:
+#         text_features += ' '.join(jobs_data['preferences']) + ' '
+#
+#     # Concatenate languages into text_features
+#     if 'languages' in jobs_data:
+#         text_features += ' '.join(jobs_data['languages']) + ' '
+#
+#     # Concatenate skills and proficiency into text_features
+#     if 'skills' in jobs_data:
+#         for skill_dict in jobs_data['skills']:
+#             text_features += skill_dict['skillName'] + ' '
+#
+#     if text_features:
+#         # Initialize TF-IDF vectorizer
+#         vectorizer = TfidfVectorizer()
+#         # Fit and transform the text features to TF-IDF vectors
+#         tfidf_vectors = vectorizer.fit_transform([text_features])
+#         return tfidf_vectors
+#     else:
+#         return None
+
+
+# Function to Generate Word2Vec embeddings
+# def generate_word2vec_embeddings(user_data):
+#     # Load pre-trained Word2Vec model
+#     model_path = "word2vec-google-news-300.gz"  # Assuming the model file is in the current directory
+#     word2vec_model = api.load(model_path)
+#
+#     # Initialize an empty list to store word vectors
+#     word_vectors = []
+#
+#     # Get word vectors for each word in the text features
+#     for word in user_data['education'].split() + user_data['job_preferences'].split() + user_data['languages']:
+#         if word in word2vec_model:
+#             word_vectors.append(word2vec_model[word])
+#
+#     # Calculate the average word vector
+#     if word_vectors:
+#         embeddings = np.mean(word_vectors, axis=0)
+#     else:
+#         embeddings = np.zeros_like(word2vec_model['computer'])  # Use a zero vector if no word vectors found
+#
+#     return embeddings
+def convert_to_tfidf(candidate_text, job_text):
+    # Initialize TF-IDF vectorizer
+    vectorizer = TfidfVectorizer()
+
+    # Fit and transform the concatenated text to TF-IDF vectors
+    candidate_tfidf_vector = vectorizer.fit_transform([candidate_text])
+    job_tfidf_vector = vectorizer.transform([job_text])
+
+    return candidate_tfidf_vector, job_tfidf_vector

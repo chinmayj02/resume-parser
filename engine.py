@@ -296,10 +296,14 @@ def get_bert_embeddings(text):
 
 def job_recommendation(sessionId):
     candidate_info = get_candidate_data(sessionId)
+    print("Candidate Information: ")
+    print(candidate_info)
     if not candidate_info:
         return jsonify({'error': 'Unsupported format'}), 400
     job_embeddings = []
     jobs_data = get_jobs_list(candidate_info["gender"],candidate_info["age"])
+    print("Jobs Information: ")
+    print(jobs_data)
     if(jobs_data==None):
         return jsonify({'error': 'No Jobs'}), 204
     # candidate_info_text = ' '.join(map(str, candidate_info))
