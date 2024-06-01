@@ -374,9 +374,16 @@ def job_recommendation(sessionId):
                       'age': 39,
                       'education': 'graduate',
                       'job_preferences': 'contract', 'languages': 'english',
-                      'skills': {'html': '9','python':'9','css':'9'},
-                      'previous_job_roles': {}}
-
+                      'skills': {'python': '9',
+                                 'java': '5',
+                                 'Scripting languages': '3',
+                                 'Test automation tools': '4',
+                                 'HTML':'9',
+                                 'javascript':'8',
+                                 'css':'10',
+                                 'java ee':'10'
+                                 },
+                      'previous_job_roles': {'Software development trainee':4}}
     # Check if candidate has no skills
     if not candidate_info['skills']:
         return -1  # No jobs to be recommended
@@ -438,7 +445,7 @@ def job_recommendation(sessionId):
         # Extract the candidate's job preferences & the job's preferences from  candidate_info & job_info dictionaries.
         # If either of the preferences is not provided, set them to empty strings.
         candidate_preferences = candidate_info.get('job_preferences', '')
-        job_preferences = job_info.get('preferences', '')
+        job_preferences = ''.join(job_info.get('preferences', ''))
 
         # Check if either the candidate's preferences or the job's preferences are empty.
         # If either is empty, set preference_similarity to 0.0, indicating no similarity.

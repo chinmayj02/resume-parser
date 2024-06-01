@@ -509,6 +509,7 @@ def candidate_recommendation(job_id):
 
     # Step 3: Calculate similarity metric for each candidate
     recommended_candidates = []
+
     for candidate_info in preprocessed_candidates_data:
         # Check if candidate has no skills
         if not candidate_info['skills']:
@@ -559,20 +560,26 @@ def candidate_recommendation(job_id):
         if not candidate_info['previous_job_roles']:
             experience_similarity = 0.0
         else:
-            experience_similarity = calculate_experience_match(candidate_info['previous_job_roles'],
-                                                               job_info['requiredExperienceMin'],
-                                                               job_info['requiredExperienceMax'])
+            experience_similarity = calculate_experience_match(
+                candidate_info['previous_job_roles'],
+                job_info['requiredExperienceMin'],
+                job_info['requiredExperienceMax']
+            )
 
-            # Calculate overall similarity score with equal weightage for each attribute
-            skill_weight = 0.40
-            preference_weight = 0.20
-            experience_weight = 0.10
-            education_weight = 0.20
-            language_weight = 0.10
+        # Calculate overall similarity score with equal weightage for each attribute
+        skill_weight = 0.40
+        preference_weight = 0.20
+        experience_weight = 0.10
+        education_weight = 0.20
+        language_weight = 0.10
 
-            overall_similarity = float(skill_similarity * skill_weight + preference_similarity * preference_weight +
-                                       education_similarity * education_weight + language_similarity * language_weight +
-                                       experience_similarity * experience_weight) * 100  # Convert to percentage
+        overall_similarity = float(
+            skill_similarity * skill_weight +
+            preference_similarity * preference_weight +
+            education_similarity * education_weight +
+            language_similarity * language_weight +
+            experience_similarity * experience_weight
+        ) * 100  # Convert to percentage
 
         # Append candidate data along with similarity scores to the recommended candidates list
         recommended_candidates.append({
@@ -584,6 +591,10 @@ def candidate_recommendation(job_id):
             "experienceMatch": experience_similarity,
             "overallSimilarity": overall_similarity
         })
+
+    # Log the recommended candidates for debugging
+    for candidate in recommended_candidates:
+        print(candidate)
 
     sorted_candidates = sorted(recommended_candidates, key=lambda x:x['overallSimilarity'], reverse=True)
     filtered_candidates = [candidate for candidate in sorted_candidates if candidate['overallSimilarity'] > 45]
