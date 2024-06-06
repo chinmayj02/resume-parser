@@ -6,8 +6,6 @@ import torch
 import requests
 import numpy as np
 from flask import jsonify
-import matplotlib.pyplot as plt
-import gensim.downloader as api
 from scipy.spatial import distance
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -412,6 +410,11 @@ def job_recommendation(sessionId):
             candidate_preference_embedding = generate_bert_embeddings(candidate_preferences, tokenizer)
             job_preference_embedding = generate_bert_embeddings(job_preferences, tokenizer)
             preference_similarity = cosine_similarity_score(candidate_preference_embedding, job_preference_embedding)
+            if isinstance(preference_similarity, np.ndarray):
+                preference_similarity = preference_similarity[0][0]  # Extract scalar from array
+            print("Preference Similarity")
+            print(preference_similarity)
+
 
         # Calculate education similarity
         job_education = job_info.get('requiredHighestEducation', '')
@@ -422,6 +425,10 @@ def job_recommendation(sessionId):
             education_embedding = generate_bert_embeddings(job_education, tokenizer)
             candidate_education_embedding = generate_bert_embeddings(candidate_education, tokenizer)
             education_similarity = cosine_similarity_score(candidate_education_embedding, education_embedding)
+            if isinstance(education_similarity, np.ndarray):
+                education_similarity = education_similarity[0][0]  # Extract scalar from array
+            print("Education Similarity")
+            print(education_similarity)
 
         # Calculate language similarity
         job_languages = job_info.get('languages', [])
@@ -433,6 +440,10 @@ def job_recommendation(sessionId):
             language_embedding = generate_bert_embeddings(language_texts[0], tokenizer)
             candidate_language_embedding = generate_bert_embeddings(candidate_languages, tokenizer)
             language_similarity = cosine_similarity_score(candidate_language_embedding, language_embedding)
+            if isinstance(language_similarity, np.ndarray):
+                language_similarity = language_similarity[0][0]  # Extract scalar from array
+            print("Language Similarity")
+            print(language_similarity)
 
         # Calculate experience similarity
         if not candidate_info['previous_job_roles']:
