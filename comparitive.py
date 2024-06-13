@@ -415,7 +415,6 @@ def job_recommendation(sessionId):
             print("Preference Similarity")
             print(preference_similarity)
 
-
         # Calculate education similarity
         job_education = job_info.get('requiredHighestEducation', '')
         candidate_education = candidate_info.get('education', '')
@@ -545,6 +544,10 @@ def candidate_recommendation(job_id):
             candidate_preference_embedding = generate_bert_embeddings(candidate_info['job_preferences'], tokenizer)
             job_preference_embedding = generate_bert_embeddings(job_info['preferences'], tokenizer)
             preference_similarity = cosine_similarity_score(candidate_preference_embedding, job_preference_embedding)
+            if isinstance(preference_similarity, np.ndarray):
+                preference_similarity = preference_similarity[0][0]  # Extract scalar from array
+            print("Preference Similarity")
+            print(preference_similarity)
 
         # Calculate education similarity
         job_education = job_info.get('requiredHighestEducation', '')
@@ -555,6 +558,10 @@ def candidate_recommendation(job_id):
             education_embedding = generate_bert_embeddings(job_education, tokenizer)
             candidate_education_embedding = generate_bert_embeddings(candidate_education, tokenizer)
             education_similarity = cosine_similarity_score(candidate_education_embedding, education_embedding)
+            if isinstance(education_similarity, np.ndarray):
+                education_similarity = education_similarity[0][0]  # Extract scalar from array
+            print("Education Similarity")
+            print(education_similarity)
 
         # Calculate languages similarity
         job_languages = job_info.get('languages', [])
@@ -566,6 +573,10 @@ def candidate_recommendation(job_id):
             language_embedding = generate_bert_embeddings(language_texts[0], tokenizer)
             candidate_language_embedding = generate_bert_embeddings(candidate_info['languages'], tokenizer)
             language_similarity = cosine_similarity_score(candidate_language_embedding, language_embedding)
+            if isinstance(language_similarity, np.ndarray):
+                language_similarity = language_similarity[0][0]  # Extract scalar from array
+            print("Language Similarity")
+            print(language_similarity)
 
         # Calculate experience similarity
         if not candidate_info['previous_job_roles']:
