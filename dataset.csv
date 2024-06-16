@@ -1,0 +1,98 @@
+Timestamp,name,email,dob,gender,education,specialization,startDate,endDate,skills,instituteName,preferences,category,experience,yearOfExperience,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,Email Address
+5/5/2024 15:53:14,Vadiraj Inamdar,vadirajinamdar6@gmail.com,4/23/2002,Male,Bachelor's,Computer Engineering ,10/1/2020,11/5/2024,"C 9,C++ 9,Java 6,Python 6,HTML 8,CSS 8,JavaScript 8,Php 4,MySQL 8",Don Bosco College of Engineering ,"Full time, Day Shift, Work from office, Work from home",Experienced,Intern ,1.5,,,,,,8,9,10,10,10,10,,,,9,10,vadirajinamdar6@gmail.com
+5/5/2024 15:58:44,Ivan Azim,iaxivanazim@gmail.com,3/22/1999,Male,Bachelor's,Computer Engineering,5/5/2021,5/13/2024,"Laravel 6,Php 6,Html 9,CSS 9,JavaScript 7,Bootstrap 8,C++ 5,GitHub 6",Don Bosco College of Engineering,"Full time, Day Shift",Experienced,Full stack web developer,1,7,4,8,7,4,9,8,9,9,9,8,6,4,1,4,8,iaxivanazim@gmail.com
+5/5/2024 16:02:34,Chinmay Joshi,chinmayujsohi@gmail.com,7/7/2002,Male,Bachelor's,Computer Engineering,6/1/2020,5/11/2024,"Java 8,Python 5,CSS 5,HTML 10,JavaScript 5",Don Bosco College of Engineering ,"Full time, Day Shift, Work from office, Work from home",Fresher,,,,,5,7,4,3,10,9,3,8,8,7,6,,10,8,chinmayujoshi@gmail.com
+5/5/2024 16:05:19,Luke costa,lukecoelhodacosta@gmail.com,1/15/2002,Male,Bachelor's,Computer Engineering ,8/26/2020,5/15/2024,"Java 6,Python 3,AutoCAD 3,CSS 3,Ms.Excel 4,C++ 6,Angular 5",Don Bosco College of Engineering,"Full time, Work from office, Work from home",Fresher,,,7,8,8,9,9,10,10,10,9,8,10,9,8,8,8,10,lukecoelhodacosta@gmail.com
+5/5/2024 16:09:05,shreyaa,shreya.xia.samdhss@gmail.com,6/1/2004,Female,Bachelor's,electronics ,1/5/2022,6/5/2026,"esp32 10,Arduino 7,c 7,c++ 5 ",dbce,Work from office,Fresher,,,8,9,8,7,6,8,7,9,9,8,9,8,9,8,9,8,shreya.xia.samdhss@gmail.com
+5/5/2024 16:14:58,Jonas Chris Ferrao,jonaschris2103@gmail.com,3/21/2003,Male,Bachelor's,Computer Engineering,8/1/2021,6/1/2025,"MachineLearning 9,DataScience 7,DeepLearning 9,DataStructureandAlgorithms 7,WebDevelopment 6,Python 8",Don Bosco College of Engineering,"Full time, Part time, Internship, Night shift, Work from home",Fresher,,,4,1,6,7,6,6,6,7,6,6,6,6,9,4,6,5,jonasferrao21@gmail.com
+5/5/2024 16:21:51,Yagnesh Karwarker,yagneshkarwarker. 1@gmail.com,3/24/2003,Male,Bachelor's,Computer engineering,8/23/2021,5/10/2025,"Python 7,Mysql 9,JavaScript 9,Php 7",Don bosco college of engineering,"Full time, Internship",Fresher,,,5,4,8,9,8,8,7,8,8,8,8,10,9,5,9,9,yagneshkarwarker24@gmail.com
+5/5/2024 16:29:55,Andrea Treeza Fernandes ,andreafernandes1903@gmail.com,10/19/2003,Female,Bachelor's,Computer Engineering ,10/18/2021,7/31/2025,"Excel 8,CSS 7 Python 5",Don Bosco College of engineering Fatorda ,"Full time, Part time, Day Shift, Work from office, Internship, Work from home",Fresher,,,7,8,7,5,4,4,3,5,5,4,6,6,7,3,4,5,andreafernandes1903@gmail.com
+5/5/2024 16:47:13,Nidi Nair ,2314071@dbcegoa.ac.in ,6/15/0005,Female,Bachelor's,Computer Engineering ,7/30/0023,9/30/0027,"",Don Bosco College of engineering ,Work from home,Fresher,,,3,1,3,3,4,2,2,2,2,2,1,3,4,1,2,1,jeenarakesh@gmail.com
+5/5/2024 16:47:16,Samuel Thomas Mesquita,sammesquita1604@gmail.com,4/16/2003,Male,Bachelor's,Computer Engineering,10/9/2021,8/10/2025,"Python 7,R Programming 5,MsExcel 4,Power BI 1,Tableau 1",Don Bosco College of Engineering,"Full time, Internship, Work from home",Fresher,,,1,1,5,2,5,1,1,1,1,1,1,5,8,1,4,1,sammesquita1604@gmail.com
+5/5/2024 17:17:13,Nikhil Rao,raonik1003@gmail.com,2/10/2003,Male,Bachelor's,Computer Engineering,6/10/2021,6/10/2025,"C++ 5,Python 1",Don Bosco College Of Engineering ,"Full time, Work from office, Internship, Work from home",Fresher,,,5,1,9,4,5,7,6,8,6,8,9,4,1,1,1,10,raonik1003@gmail.com
+5/5/2024 17:22:19,Nirupam Samant ,nirupamsamant18@gmail.com,5/18/2000,Male,Master's,Education ,6/16/2022,5/9/2024,"",GVM'S Dr. Dada Vaidya College of Education ,"Full time, Part time, Day Shift, Work from office, Internship, Night shift, Work from home",Fresher,,,5,4,6,6,4,3,3,9,4,5,1,1,3,4,4,1,nirupamsamant18@gmail.com
+5/5/2024 17:26:36,Anushka Da Silva,2214005@dbcegoa.ac.in,12/25/2003,Female,Bachelor's,Computer Engineering ,7/28/2022,9/26/2026,"C++ 7,HTML 5,CSS 5,Python 5,Figma 5,C 8",Don Bosco College of Engineering ,Part time,Fresher,,,3,3,4,4,5,5,2,6,5,5,5,5,5,1,1,6,anushkadasilva1225@gmail.com
+5/5/2024 17:30:34,Atharv Batule ,2314011@dbcegoa.ac.in,7/9/2005,Male,Bachelor's,Computer Engineering ,8/1/2023,8/1/2027,"C 8 ,Python 5,Php 5,Css 4,PowerPoint 8,Word 8,MsExcel 8,",Don Bosco College Of Engineering ,Full time,Fresher,,,6,4,7,5,6,6,7,8,4,5,4,5,3,1,8,8,atharvbatule9@gmail.com
+5/5/2024 17:44:01,Aryan Kotru,aryankotru18@gmail.com,6/22/2001,Male,Bachelor's,Computer Engineering,1/1/2020,1/1/2024,"Python 8,C++ 6,Unity 7,MySQL 8,Neo4j 5",DBCE,Full time,Fresher,,,3,2,8,6,8,5,3,2,4,5,6,8,5,1,1,4,aryankotru18@gmail.com
+5/5/2024 17:51:36,Luke Fernandes ,lukefernandes492@gmail.com,11/8/2005,Male,Bachelor's,Computer Engineering,7/31/2023,5/11/2027,"",Don Bosco college of engineering ,"Part time, Day Shift, Night shift, Work from home",Fresher,,,9,9,10,8,9,10,9,9,9,8,8,9,8,8,8,9,lukefernandes492@gmail.com
+5/5/2024 18:14:15,Veron Azim,veronazim@gmail.com,8/22/2003,Male,Bachelor's,Civil Engineering ,11/13/2022,5/15/2026,"C Programming 9,Python 8,Ms. Excel 6",NIT Goa,"Part time, Work from office, Internship, Work from home",Fresher,,,9,9,8,8,9,9,9,8,8,9,9,8,7,5,7,8,veronazim@gmail.com
+5/5/2024 18:21:34,Vanshika Gupta ,gvanshikaaaa@gmail.com,3/27/2004,Female,Bachelor's,Electronics and computer science ,9/30/2022,9/30/2026,"Java 5,Python 8,C 8,C++ 7,Ms.Excel 7",Don Bosco College of engineering ,"Part time, Internship, Work from home",Fresher,,,7,6,9,8,10,7,9,7,8,5,5,7,9,9,8,9,gvanshikaaaa@gmail.com
+5/5/2024 18:50:07,Elrich Afroy Colaco,elrichcollaso51@gmail.com,10/21/2005,Male,Bachelor's,Computer Engineering,7/31/2023,12/31/2027,"",Don Bosco College of Engineering Fatorda Goa,"Part time, Internship, Night shift, Work from home",Fresher,,,3,2,2,2,2,2,2,8,1,1,7,2,2,2,6,7,elrichcollaso51@gmail.com
+5/5/2024 19:04:26,Hayden Cassiano Fernandes,haydenfernandes31@gmail.com,10/3/2005,Male,Bachelor's,Computer Engineering,7/31/2023,7/31/2027,"C 9,C++ 10,Python 5 ,HTML 7,CSS 5,IOT 3,Canva 7",Don Bosco College of Engineering Fatorda ,"Part time, Internship, Work from home",Fresher,,,5,1,6,8,4,2,1,7,3,3,7,6,2,1,4,7,haydenfernandes31@gmail.com
+5/5/2024 19:15:48,TRIPURARI SINGH ,tripurarisingh302@gmail.com,3/27/2005,Male,Bachelor's,Civil engineering ,11/11/2022,5/15/2026,Autocad 7,National institute of technology Goa ,"Full time, Work from office",Fresher,,,6,7,2,6,2,4,1,1,1,2,1,2,3,1,1,2,tripurarisingh302@gmail.com
+5/5/2024 19:42:31,Elivia Sweema Silva ,2316014@dbcegoa.ac.in,11/22/2005,Female,Bachelor's,Electronic and computer science ,6/1/2023,5/1/2027,"C 8,C++ 8",Don Bosco college of engineering ,"Part time, Internship, Work from home",Fresher,,,4,3,8,7,8,8,9,9,8,7,9,7,5,10,8,7,2316014@dbcegoa.ac.in
+5/5/2024 20:00:12,Jason Rodrigues ,jasonrodriguesm2@gmail.com,4/19/2002,Male,Bachelor's,Computer Engineering ,3/6/2020,1/6/2024,"Html 6,C++ 5,Python 5,Flutter 6,Java 5",Don Bosco College Of Engineering ,"Part time, Day Shift, Work from office, Night shift, Work from home",Fresher,,,7,5,7,4,6,5,6,5,6,5,3,5,5,6,7,5,jasonrodriguesm2@gmail.com
+5/5/2024 21:46:33,RITESH DILKUSH CHARI ,chariritesh6@gmail.com,10/5/2004,Male,Bachelor's,Computer Engineering ,9/26/2022,12/30/2026,Python 8 ,"Don Bosco College of Engineering, Fatorda","Part time, Internship, Work from home",Fresher,,,10,10,9,10,10,10,10,10,10,10,10,10,10,10,10,10,chariritesh6@gmail.com
+5/5/2024 21:47:58,Faizan Farid Akabani ,Faizanfaridakabani@gmail.com,10/24/2004,Male,Bachelor's,Computer Engineering ,7/28/2023,7/28/2026,"Video Editing 7,Videography 7,Poster Editing 7",Don Bosco College Of Engineering Fatorda ,"Part time, Night shift, Work from home",Experienced,Social media Manager,2,2,5,1,5,1,1,1,5,5,4,6,1,2,4,4,5,faizanfaridakabani@gmail.com
+5/5/2024 21:52:55,Shridevi Bharne ,2114049@dbcegoa.ac.in,3/27/2003,Female,Bachelor's,Computer engineering ,5/5/2021,5/5/2024,"Python 8,Css 9,Html 8,Javascript 6 ,C++ 9",Don Bosco college of engineering ,"Full time, Day Shift, Work from office, Work from home",Fresher,,,5,8,7,6,5,7,4,7,5,4,6,6,5,5,4,5,2114049@dbcegoa.ac.in
+5/5/2024 22:04:01,SHRINIVAS.G.INAMDAR,shrinivasinamdar4@gmail.com,7/13/2005,Male,Bachelor's,Computer Engineering,7/30/2023,8/30/2027,"C++ 8,Python 5,HTML 8,CSS 8,Ms Excel 6",Don Bosco College of Engineering,"Full time, Day Shift, Work from office, Work from home",Fresher,,,,,,,7,8,,7,,,4,,,,,,shrinivasinamdar4@gmail.com
+5/5/2024 22:32:49,Pranav Naik ,naikpranav110803@gmail.com,7/16/2003,Male,Bachelor's,Computer Engineering ,9/8/2021,8/21/2025,"Python 9,AI/ML 8,Data science 8,Cybersecurity 7,C++ 10",Don Bosco College of Engineering ,Internship,Fresher,,,1,1,5,5,8,4,5,4,3,4,2,4,8,1,7,2,naikpranav110803@gmail.com
+5/5/2024 23:09:40,Navin Morajkar ,navinsika@gmail.com,5/26/2002,Male,Bachelor's,Computer Engineering ,9/10/2020,5/11/2024,"HTML 10,CSS 9,Javascript 8",Don Bosco College of Engineering ,Full time,Fresher,,,4,1,5,8,5,9,9,10,9,9,9,5,6,4,8,10,navinsika@gmail.com
+5/6/2024 0:11:01,Skyla Barreto ,skylabarreto211@gmail.com,11/2/2002,Female,Bachelor's,Computer Engineering ,8/1/2020,5/11/2024,"Html ,Css 9,  Java 6, python 7, React 9",Don Bosco college of engineering ,"Full time, Part time, Work from home",Fresher,,,6,2,5,6,6,6,6,6,6,6,6,5,5,2,6,6,skylabarreto211@gmail.com
+5/6/2024 0:47:35,Aayush Sandeep Parab,aayushparab123@gmail.com,5/13/2002,Male,Bachelor's,Computer Engineering,10/16/2020,5/13/2024,Java 5,Don Bosco College of Engineering,"Full time, Part time, Day Shift, Work from home",Fresher,,,6,7,7,6,6,7,7,6,6,6,6,7,5,5,5,5,aayushparab123@gmail.com
+5/6/2024 0:52:09,Gauravi Gajanan Kamat,gauravikamat77@gmail.com,10/20/2002,Female,Bachelor's,Computer Engineering ,6/1/2021,6/30/2024,"Canva 9,Figma 9,C++ 9,Html 9,Css 9,Python 9,Mysql 9,JavaScript 9,Php 9,Java 9,React 9","Don Bosco College of Engineering, Fatorda ","Full time, Part time, Day Shift, Work from office, Internship, Work from home",Fresher,,,2,2,5,5,3,10,7,10,10,10,9,5,5,2,9,10,gauravikamat77@gmail.com
+5/6/2024 0:56:19,Tejas,tejtejas745@gmail.com,5/6/2002,Male,Bachelor's,Computer ,5/6/2020,5/11/2024,Python 5,Don Bosco college of engineering,Full time,Fresher,,,8,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,tejtejas745@gmail.com
+5/6/2024 1:05:33,Jaden Mascarenhas ,jadenmascarenhas9@gmail.com,10/10/2002,Male,Bachelor's,Computer ,11/16/2021,5/31/2024,"1 Python 5
+2 c++. 7
+C# 5
+Css 8
+SQL 6
+Java script 5
+Node js 4
+Mongo db 7",Don Bosco College of engineering ,"Full time, Part time, Internship, Work from home",Fresher,,,6,6,5,3,7,5,5,6,5,5,6,8,5,6,7,5,jadenmascarenhas9@gmail.com
+5/6/2024 1:15:41,Jayden Ferrao ,2014017@dbcegoa.ac.in,12/30/2002,Male,Bachelor's,Computer engineering ,1/1/2021,5/13/2024,"1 HTML
+2 CSS
+3 Python
+4 JS/PHP
+5 SQL
+6 MS 365",Do Bossco college of engineering goa,"Full time, Day Shift, Work from office",Fresher,,,7,4,7,6,9,9,9,10,9,9,10,8,10,3,3,9,2014017@dbcegoa.ac.in
+5/6/2024 2:00:44,Iti sawami muti swami bal gopal iyer,faheem.thakur24@gmail.com,7/22/2000,Male,Bachelor's,Computer engineering,1/1/2021,6/1/2024,Css,Dbce,Full time,Fresher,,,1,1,1,1,1,10,1,10,7,8,8,1,1,1,1,6,2014032@dbcegoa.ac.in
+5/6/2024 7:44:08,Rawdon Arvino Jobais Noronha ,rawdonnoronha11@gmail.com,8/8/2002,Male,Bachelor's,Computer Engineering ,6/1/2020,6/2/2024,"1. Java 7
+2. C++ 8
+3. html 10
+4. Js 8
+5. JQuery 6
+6. C 8
+7. Bootstrap 4
+8. Python 4
+9. Codeignitor 7",Don Bosco College of engineering ,"Full time, Part time, Work from home",Fresher,,,5,1,9,7,8,10,10,10,8,6,9,8,9,3,8,10,rawdonnoronha11@gmail.com
+5/6/2024 9:06:51,Sanjana Vernekar ,sanjanavernekar4@gmail.com,3/4/2002,Female,Bachelor's,Computer engineering ,11/2/2020,5/13/2024,"1. Html 10
+2. CSS 3 9
+3.Python 8 
+4.Java 6 ",Don Bosco College of engineering ,Full time,Fresher,,,1,1,6,6,6,6,8,9,8,7,10,7,8,6,6,10,vernekarsanju425@gmail.com
+5/6/2024 10:08:09,Rudra Kande ,2014042@dbcegoa.ac.in,5/30/2000,Male,Bachelor's,Computer engineering ,11/18/2020,5/11/2024,Html css c++,Dbce,"Full time, Work from office, Work from home",Fresher,,,1,1,1,1,2,3,3,9,6,7,7,4,1,1,1,8,2014042@dbcegoa.ac.in
+5/6/2024 10:10:21,Priti Sahebgowda Desai,pritidesai557@gmail.com,6/14/1999,Female,Bachelor's,Computer Engineering,6/10/2021,6/30/2024,Python 6,Don Bosco College of Engineering,"Full time, Day Shift",Fresher,,,8,5,7,6,5,9,9,9,7,7,8,6,6,6,6,7,pritidesai557@gmail.com
+5/6/2024 12:13:04,Duval Gomes,duvalfgomes@gmail.com ,5/30/2000,Male,Bachelor's,Computer Engineering ,8/4/2020,7/1/2024,"CSS 7,Python 7",Don Bosco College Of Engineering Fatorda-Goa ,"Full time, Part time, Day Shift, Work from office, Internship, Night shift, Work from home",Fresher,,,5,4,8,6,5,5,4,4,4,4,5,8,5,4,5,4,duvalfgomes@gmail.com
+5/6/2024 13:31:07,Nadia Fernandes ,nadiaferns23@gmail.com,9/23/2002,Female,Bachelor's,Computer Engineering ,9/30/2021,5/11/2024,"1 Java 6
+2 Python 7
+3 C/ C++ 8
+4 HTML 9
+5 PHP 8
+6 Javascript 5
+7 SQL 8",Don Bosco College of Engineering ,Full time,Fresher,,,4,2,5,6,5,8,8,10,10,8,8,7,7,4,8,8,nadiaferns23@gmail.com
+5/6/2024 14:33:30,Anish Anup Naik Mule ,nanish909@gmail.com,3/19/2003,Male,Bachelor's,computer engineering ,5/6/2021,5/6/2025,"python 8
+C++ 8
+Html 8
+css 8
+javascript 7
+machine learning 8
+artificial intelligence 8",Don Bosco College of Engineering ,"Internship, Work from home",Fresher,,,,,,,,,,,,,,,,,,9,nanish909@gmail.com
+5/6/2024 23:34:15,Khushi shirsat ,khushirsat07@gmail.com,11/7/2004,Female,PhD,Computer science ,11/1/2021,6/17/2027,"1.java 7
+2.python 9
+AutoCAD 7
+CSS 5
+Ms.Excel 9",Don Bosco college ,"Day Shift, Work from home",Fresher,,,,,,,,,,,,,,,,,,,khushirsat07@gmail.com
+5/7/2024 12:22:33,Jenny Gilbert ,unofficialjeremy@gmail.com ,11/5/2002,Male,Bachelor's,Electronics and Telecommunications ,9/28/2020,5/10/2024,"Java 6
+Python 9
+PCB design 9
+Circuit designing 8
+Auto CAD 9",DBCE,"Full time, Work from office",Fresher,,,5,1,1,1,1,3,1,1,1,1,1,1,1,9,5,1,unofficialjeremy@gmail.com
+5/7/2024 23:32:33,Amogh kunkolienkar ,amoghkunkolienkar5@gmail.com,5/23/1997,Male,Master's,MBA IN FINANCE ,6/1/2021,5/31/2023,"Portfolio management - 8, Statistical analysis - 8, CSS 7, ","CMS BUSINESS SCHOOL, JAIN UNIVERSITY ",Full time,Experienced,"Deputy branch manager, grade 2",1,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,amoghkunkolienkar5@gmail.com
+5/9/2024 10:05:15,Damodar,ameypai@yahoo.com,3/28/1981,Male,Master's,MBA,6/10/2003,6/9/2005,SPSS,sjim,Full time,Experienced,BA,15,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,damodar.pai.patnekar@gmail.com
+5/18/2024 3:22:06,Shailesh Majukar ,shaileshmajukar21@gmail.com,5/21/1998,Male,Bachelor's,Mechanical engineer ,10/10/2019,6/1/2022,"Java 8 
+web development 8 
+Ms. Excel 8
+Auto Cad 7
+CATIA 7
+Ms. PowerPoint 9",Jain College of Engineering ,"Full time, Part time, Work from home",Fresher,,,9,10,10,8,8,9,10,10,9,9,9,9,9,8,10,10,shaileshmajukar21@gmail.com
+5/18/2024 13:08:01,Melfy correia ,melfycorreia@gmai.com,3/12/1999,Female,Bachelor's,Mechanical engineering ,6/18/2020,9/5/2023,Ms Excel 8,Don Bosco college of engineering ,Work from home,Experienced,Maintenance Engineer ,1 year,6,6,5,4,2,2,2,3,2,2,3,5,2,2,2,2,melfycorreia@gmail.com
