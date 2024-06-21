@@ -42,9 +42,9 @@ def get_candidate_data(sessionId):
                     experience['jobRole']: calculate_experience_years(experience['startDate'], experience['endDate'])
                     for experience in candidate_info[1]['candidateExperiences']}
             }
-            if (transformed_data['gender'] == "M"):
+            if transformed_data['gender'] == "M":
                 transformed_data["gender"] = "Male"
-            elif (transformed_data["gender"] == "F"):
+            elif transformed_data["gender"] == "F":
                 transformed_data["gender"] = "Female"
             return transformed_data
         else:
@@ -104,9 +104,9 @@ def get_job_data(job_id):
     except requests.exceptions.RequestException as e:
         print("Error occurred while fetching data:", e)
 
-    if (job_details['requiredGender'] == "M"):
+    if job_details['requiredGender'] == "M":
         job_details["requiredGender"] = "Male"
-    elif (job_details["requiredGender"] == "F"):
+    elif job_details["requiredGender"] == "F":
         job_details["requiredGender"] = "Female"
     else:
         job_details["requiredGender"] = "Male or Female"
@@ -147,9 +147,9 @@ def get_jobs_list(gender, age):
     transformed_data = []
 
     for job in jobs_data:
-        if (job['requiredGender'] == "M"):
+        if job['requiredGender'] == "M":
             job["requiredGender"] = "Male"
-        elif (job["requiredGender"] == "F"):
+        elif job["requiredGender"] == "F":
             job["requiredGender"] = "Female"
         else:
             job["requiredGender"] = "Male or Female"
@@ -459,8 +459,10 @@ def job_recommendation(sessionId):
         education_weight = 0.20
         language_weight = 0.10
 
-        overall_similarity = float(skill_similarity * skill_weight + preference_similarity * preference_weight +
-                                   education_similarity * education_weight + language_similarity * language_weight +
+        overall_similarity = float(skill_similarity * skill_weight +
+                                   preference_similarity * preference_weight +
+                                   education_similarity * education_weight +
+                                   language_similarity * language_weight +
                                    experience_similarity * experience_weight) * 100  # Convert to percentage
 
         # Append job data along with similarity scores to the recommended jobs list
@@ -473,19 +475,21 @@ def job_recommendation(sessionId):
             "experienceMatch": float(experience_similarity),
             "overallSimilarity": float(overall_similarity)
         })
+
     # Sort recommended jobs by overall similarity score in descending order
     sorted_jobs = sorted(recommended_jobs, key=lambda x: x['overallSimilarity'], reverse=True)
+
     filtered_jobs = [job for job in sorted_jobs if job['overallSimilarity'] > 45]
+
     if not filtered_jobs:
         print("No jobs available for the given candidate")
         return jsonify({'error': 'No jobs are available for the candidate'}), 204
+
     formatted_jobs = []
     for job in filtered_jobs:
-        formatted_job = {
-            "jobId": job['jobId'],
-            "recommendationScore": round(job['overallSimilarity'], 2)
-        }
+        formatted_job = {"jobId": job['jobId'], "recommendationScore": round(job['overallSimilarity'], 2)}
         formatted_jobs.append(formatted_job)
+
     print("Recommended jobs are:")
     print(formatted_jobs)
     return json.dumps(formatted_jobs)
@@ -618,7 +622,7 @@ def candidate_recommendation(job_id):
     for candidate in recommended_candidates:
         print(candidate)
 
-    sorted_candidates = sorted(recommended_candidates, key=lambda x:x['overallSimilarity'], reverse=True)
+    sorted_candidates = sorted(recommended_candidates, key=lambda x: x['overallSimilarity'], reverse=True)
     filtered_candidates = [candidate for candidate in sorted_candidates if candidate['overallSimilarity'] > 45]
     if not filtered_candidates:
         print("No candidates available for the given job")

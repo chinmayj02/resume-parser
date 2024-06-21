@@ -14,7 +14,9 @@ from sklearn.metrics import pairwise_distances
 from transformers import BertTokenizer, BertModel
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 import csv
+import ast
 
 data_objects = []
 # DATASET
@@ -448,7 +450,6 @@ def calculate_experience_match(candidate_previous_job_roles, required_experience
 
 
 # Method returns list of recommended jobs for a given candidate along with the recommendedScore
-# Method returns list of recommended jobs for a given candidate along with the recommendedScore
 def job_recommendation(candidate_info, job_info):
     global data_objects
     # Step 1: Extract & preprocess user data
@@ -579,7 +580,7 @@ def job_recommendation(candidate_info, job_info):
         })
     # Sort recommended jobs by overall similarity score in descending order
     sorted_jobs = sorted(recommended_jobs, key=lambda x: x['overallSimilarity'], reverse=True)
-    filtered_jobs = sorted_jobs
+    filtered_jobs = [job for job in sorted_jobs if job['overallSimilarity'] > 45]
     if not filtered_jobs:
         print("No jobs available for the given candidate")
         return json.dumps({'error': 'No jobs are available for the candidate'})
@@ -626,3 +627,151 @@ if data_objects:
         print(f"CSV file '{csv_file}' has been created successfully.")
 else:
     print("No data to write to CSV.")
+
+
+# Load the output.csv file
+df = pd.read_csv('output.csv')
+
+# # Initialize lists to store the true labels and predicted labels
+# true_labels = []
+# predicted_labels = []
+#
+# # Process each candidate's data
+# for candidate_id in df['candidateId'].unique():
+#     # Get the subset of data for the current candidate
+#     candidate_data = df[df['candidateId'] == candidate_id]
+#
+#     # Get the list of recommended jobIds
+#     recommended_jobs = candidate_data['jobId'].tolist()
+#
+#     # Get the ground truth job preferences for the candidate
+#     ground_truth = candidate_data['candidateRankedJobs'].iloc[0]
+#     ground_truth_jobs = [item['jobId'] for item in ast.literal_eval(ground_truth)]
+#
+#     # Extract numerical job IDs from ground truth
+#     ground_truth_job_ids = [int(job[1:]) for job in ground_truth_jobs]
+#
+#     # Debugging outputs
+#     print(f"Candidate ID: {candidate_id}")
+#     print(f"Recommended Jobs: {recommended_jobs}")
+#     print(f"Ground Truth Jobs: {ground_truth_job_ids}")
+#
+#     # For each job in the ground truth, check if it was recommended
+#     for job in ground_truth_job_ids:
+#         if job in recommended_jobs:
+#             true_labels.append(1)  # Relevant job
+#             predicted_labels.append(1)  # Recommended
+#         else:
+#             true_labels.append(1)  # Relevant job
+#             predicted_labels.append(0)  # Not recommended
+#
+#     # For each job that was recommended, check if it was in the ground truth
+#     for job in recommended_jobs:
+#         if job not in ground_truth_job_ids:
+#             true_labels.append(0)  # Irrelevant job
+#             predicted_labels.append(1)  # Recommended
+#
+# # Calculate the confusion matrix
+# cm = confusion_matrix(true_labels, predicted_labels)
+# tn, fp, fn, tp = cm.ravel()
+#
+# # Calculate accuracy, precision, recall, and F1 score
+# accuracy = accuracy_score(true_labels, predicted_labels)
+# precision = precision_score(true_labels, predicted_labels, zero_division=0)
+# recall = recall_score(true_labels, predicted_labels, zero_division=0)
+# f1 = f1_score(true_labels, predicted_labels, zero_division=0)
+#
+# # Print the confusion matrix and the scores
+# print("Confusion Matrix:")
+# print(cm)
+# print(f"True Negative (TN): {tn}, False Positive (FP): {fp}, False Negative (FN): {fn}, True Positive (TP): {tp}")
+# print(f"Accuracy: {accuracy:.2f}")
+# print(f"Precision: {precision:.2f}")
+# print(f"Recall: {recall:.2f}")
+# print(f"F1 Score: {f1:.2f}")
+
+# Load the output.csv file
+df = pd.read_csv('output.csv')
+
+# Initialize lists to store the true labels and predicted labels
+true_labels = []
+predicted_labels = []
+
+# Process each candidate's data
+for candidate_id in df['candidateId'].unique():
+    # Get the subset of data for the current candidate
+    candidate_data = df[df['candidateId'] == candidate_id]
+
+    # Get the list of recommended jobIds
+    recommended_jobs = candidate_data['jobId'].tolist()
+
+    # Get the ground truth job preferences for the candidate
+    ground_truth = candidate_data['candidateRankedJobs'].iloc[0]
+    ground_truth_jobs = [item['jobId'] for item in ast.literal_eval(ground_truth)]
+
+    # Extract numerical job IDs from ground truth
+    ground_truth_job_ids = [int(job[1:]) for job in ground_truth_jobs]
+
+    # Debugging outputs
+    print(f"Candidate ID: {candidate_id}")
+    print(f"Recommended Jobs: {recommended_jobs}")
+    print(f"Ground Truth Jobs: {ground_truth_job_ids}")
+
+    # For each job in the ground truth, check if it was recommended
+    for job in ground_truth_job_ids:
+        if job in recommended_jobs:
+            true_labels.append(1)  # Relevant job
+            predicted_labels.append(1)  # Recommended
+        else:
+            true_labels.append(1)  # Relevant job
+            predicted_labels.append(0)  # Not recommended
+
+    # For each job that was recommended, check if it was in the ground truth
+    for job in recommended_jobs:
+        if job not in ground_truth_job_ids:
+            true_labels.append(0)  # Irrelevant job
+            predicted_labels.append(1)  # Recommended
+
+# Calculate the confusion matrix
+cm = confusion_matrix(true_labels, predicted_labels)
+tn, fp, fn, tp = cm.ravel()
+
+# Calculate accuracy, precision, recall, and F1 score
+accuracy = accuracy_score(true_labels, predicted_labels)
+precision = precision_score(true_labels, predicted_labels, zero_division=0)
+recall = recall_score(true_labels, predicted_labels, zero_division=0)
+f1 = f1_score(true_labels, predicted_labels, zero_division=0)
+
+# Print the confusion matrix and the scores
+print("Confusion Matrix:")
+print(cm)
+print(f"True Negative (TN): {tn}, False Positive (FP): {fp}, False Negative (FN): {fn}, True Positive (TP): {tp}")
+print(f"Accuracy: {accuracy:.2f}")
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")
+print(f"F1 Score: {f1:.2f}")
+
+# Further analysis
+# Analyze false negatives (missed relevant jobs)
+for candidate_id in df['candidateId'].unique():
+    candidate_data = df[df['candidateId'] == candidate_id]
+    recommended_jobs = candidate_data['jobId'].tolist()
+    ground_truth = candidate_data['candidateRankedJobs'].iloc[0]
+    ground_truth_jobs = [item['jobId'] for item in ast.literal_eval(ground_truth)]
+    ground_truth_job_ids = [int(job[1:]) for job in ground_truth_jobs]
+
+    missed_jobs = [job for job in ground_truth_job_ids if job not in recommended_jobs]
+    if missed_jobs:
+        print(f"Candidate ID: {candidate_id} missed jobs: {missed_jobs}")
+
+# Analyze false positives (incorrectly recommended jobs)
+for candidate_id in df['candidateId'].unique():
+    candidate_data = df[df['candidateId'] == candidate_id]
+    recommended_jobs = candidate_data['jobId'].tolist()
+    ground_truth = candidate_data['candidateRankedJobs'].iloc[0]
+    ground_truth_jobs = [item['jobId'] for item in ast.literal_eval(ground_truth)]
+    ground_truth_job_ids = [int(job[1:]) for job in ground_truth_jobs]
+
+    incorrect_jobs = [job for job in recommended_jobs if job not in ground_truth_job_ids]
+    if incorrect_jobs:
+        print(f"Candidate ID: {candidate_id} incorrectly recommended jobs: {incorrect_jobs}")
